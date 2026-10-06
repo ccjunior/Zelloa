@@ -1,6 +1,6 @@
 # Zelloa
 
-Zelloa is a multi-institution school services platform. The current implementation phase is **Phase 1 — Identity and Multi-Tenancy**. School and academic business features remain for later phases.
+Zelloa is a multi-institution school services platform. The current implementation phase is **Phase 2 — School and Academic**. Each institutional account belongs to one school; a school may have multiple accounts.
 
 ## Local requirements
 
@@ -42,6 +42,8 @@ docker compose up -d api family school
 The API uses ASP.NET Core Identity with an authenticated cookie session. Before a login request, call `GET /api/auth/csrf` and send its `requestToken` in the `X-XSRF-TOKEN` header to `POST /api/auth/login`. The login body contains `email` and `password`. After login, call `GET /api/me` to read the authenticated user, roles, and tenant. Call `GET /api/auth/csrf` again before `POST /api/auth/logout`.
 
 There is no public account-registration endpoint. The first `PlatformAdmin` can be bootstrapped once by setting `IdentityBootstrap__PlatformAdmin__Email` and `IdentityBootstrap__PlatformAdmin__Password` through a secret manager after applying migrations. Do not put these values in `appsettings.json` or commit them. Remove the bootstrap secret settings after the account is created. `PlatformAdmin` is global; each institutional account belongs to one tenant, and each tenant may have multiple accounts.
+
+`PlatformAdmin` creates a school and invites its initial `SchoolAdmin`. A `SchoolAdmin` creates guardian accounts and links guardians to students. Invitations are single-use activation links valid for 24 hours; delivery is manual in this phase. Configure `InvitationUrls__School` and `InvitationUrls__Family` to the corresponding frontend activation routes. Do not publish invitation links or store them in logs. Public self-registration and automated email delivery are not available.
 
 Development CORS origins are limited to the local Family and School app ports. Configure production origins explicitly through `Cors__AllowedOrigins__0` and additional indexed values as needed.
 

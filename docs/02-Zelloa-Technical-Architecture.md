@@ -502,6 +502,7 @@ Payment
 PaymentWebhookEvent
 
 User
+AccountInvitation
 
 AuditEntry
 ```
@@ -952,6 +953,12 @@ O cookie de sessão deverá utilizar `HttpOnly`, `Secure` em produção e `SameS
 Não emitir JWT próprio nem depender de provedor OIDC externo nesta fase. Não implementar criptografia ou armazenamento de senhas próprios.
 
 O primeiro `PlatformAdmin` poderá ser criado por bootstrap único usando email e senha fornecidos somente por configuração secreta de ambiente. O bootstrap não deverá definir credenciais padrão nem registrar a senha em logs. Aplicar a migration de Identity antes de configurar o bootstrap.
+
+O `PlatformAdmin` cria o tenant e a escola e gera um convite para ativar a conta do administrador escolar inicial. O administrador escolar gera convites para responsáveis. Contas convidadas são criadas sem senha e sem acesso até a ativação; a pessoa define sua senha ao aceitar o convite.
+
+Convites são links individuais de uso único, válidos por 24 horas no MVP. O emissor copia e entrega o link manualmente. Não integrar serviço de e-mail ou outro provedor de entrega nesta fase. Armazenar somente representação protegida do token; não registrar tokens nos logs nem armazená-los em claro. A ativação confirma o endereço de e-mail informado no convite.
+
+Persistir a expiração e o consumo do convite em registro associado à conta, tenant e papel concedido. A ativação e o consumo do convite deverão ocorrer atomicamente para impedir reutilização concorrente.
 
 ## Associação de conta e instituição
 

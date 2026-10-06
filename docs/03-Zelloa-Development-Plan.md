@@ -447,6 +447,8 @@ Slices iniciais:
 CreateSchool
 GetSchool
 UpdateSchool
+InviteSchoolAdmin
+ActivateInvitedAccount
 ```
 
 Informações apenas necessárias ao MVP.
@@ -504,6 +506,8 @@ UnlinkGuardianFromStudent
 GetGuardianStudents
 ```
 
+`CreateSchool` será executado por `PlatformAdmin` e criará o Tenant correspondente. `InviteSchoolAdmin` permite ao `PlatformAdmin` gerar o convite do administrador inicial. `CreateGuardian` será executado por `SchoolAdmin`, criará a conta pendente e devolverá um link de ativação de uso único para entrega manual. O usuário define sua senha ao ativar o convite. Convites expiram em 24 horas; não integrar provedor de envio nesta fase.
+
 ---
 
 # 29. Ownership
@@ -528,6 +532,9 @@ Deverá ser possível:
 6. consultar alunos do responsável;
 7. impedir acesso indevido;
 8. respeitar tenant.
+9. provisionar o administrador escolar inicial e ativar sua conta por convite;
+10. ativar a conta de um responsável convidado sem conceder acesso a aluno até o vínculo explícito;
+11. rejeitar token expirado ou reutilizado.
 
 Build e testes obrigatoriamente passando.
 

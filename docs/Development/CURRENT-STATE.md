@@ -1,18 +1,18 @@
 # Zelloa — Current Development State
 
 **Last Updated:** 2026-10-06  
-**Current Phase:** Phase 1 — Identity and Multi-Tenancy
-**Phase Status:** COMPLETE — Gate 1 met; awaiting explicit authorization before Phase 2
-**Last Completed Phase:** Phase 1 — Identity and Multi-Tenancy
-**Last Completed Gate:** Gate — Phase 1
+**Current Phase:** Phase 2 — School and Academic
+**Phase Status:** COMPLETE — Phase 2 Gate met; awaiting owner checkpoint before any Phase 3 work
+**Last Completed Phase:** Phase 2 — School and Academic
+**Last Completed Gate:** Gate — Phase 2
 
 ---
 
 ## 1. Current Objective
 
-Phase 1 — Identity and Multi-Tenancy is complete. Do not begin Phase 2 until the owner explicitly authorizes it.
+Phase 2 — School and Academic is authorized. Implement only its scope and Gate requirements.
 
-Phase 0 established the technical foundation; Phase 1 implemented authentication, authorization, and tenant context without adding business features from future phases.
+Phase 0 established the technical foundation; Phase 1 implemented authentication, authorization, and tenant context. Phase 2 is complete and its checkpoint is pending presentation; Phase 3 has not been authorized.
 
 ---
 
@@ -37,20 +37,20 @@ Available normative documentation:
 
 ## 3. Work In Progress
 
-Phase 1 is complete. ASP.NET Core Identity with secure cookie sessions is implemented. Each institutional account belongs to one tenant, and a tenant may have multiple accounts, consistent with Product Specification section 10.
+No Phase 2 implementation work remains. Phase 1 is committed as `b6e3f45`. Phase 2 changes are currently uncommitted.
 
 ---
 
 ## 4. Pending Work — Current Phase
 
-No Phase 1 work remains. Phase 2 — School and Academic is next, but requires explicit authorization.
+The Phase 2 Gate is complete: schools, classrooms, students, guardian profiles and links are implemented; tenant ownership and guardian access checks are covered; PlatformAdmin invites the first SchoolAdmin; SchoolAdmin invites guardians; activation links are single-use and valid for 24 hours. Invitation delivery is manual. No Phase 3 work is authorized until the Phase 2 checkpoint is presented and the owner explicitly approves the next phase.
 
 ---
 
 ## 5. Database State
 
 **Database:** PostgreSQL 17; Testcontainers and Compose connectivity validated; local Compose volume retained  
-**Latest Migration:** `AllowMultipleAccountsPerTenant`, following `IdentityAndTenantFoundation`; all migrations applied successfully by PostgreSQL Testcontainers integration tests. The local Compose database volume remains at the Phase 0 baseline.
+**Latest Migration:** `SchoolAcademicAndInvitations`, following `AllowMultipleAccountsPerTenant`. EF reports no pending model changes. All migrations were applied successfully by PostgreSQL Testcontainers integration tests.
 
 ---
 
@@ -58,7 +58,7 @@ No Phase 1 work remains. Phase 2 — School and Academic is next, but requires e
 
 **Solution:** `Zelloa.sln` initialized with four source projects and four test projects  
 **Build:** PASS, Release, zero warnings  
-**Tests:** PASS — 6 Architecture Tests and 9 PostgreSQL integration/security tests. Domain/Application test projects contain no feature tests because this phase introduced no business slices.
+**Tests:** PASS — 6 Architecture Tests and 14 PostgreSQL integration/security tests. Domain/Application test projects contain no tests.
 
 ---
 
@@ -85,7 +85,7 @@ No Phase 1 work remains. Phase 2 — School and Academic is next, but requires e
 
 ## 9. Known Issues
 
-The Domain and Application test projects currently contain no feature tests because Phase 0 and Phase 1 have no domain or application business slices. The hosted GitHub Actions workflow has not yet been verified after Git was configured.
+The hosted GitHub Actions workflow has not yet been verified after Git was configured. Invitation activation UI is outside Phase 2; configure `InvitationUrls__Family` and `InvitationUrls__School` to valid frontend activation routes when those routes are implemented. Invitation URLs are returned once for manual delivery and must not be published or logged.
 
 ---
 
@@ -97,7 +97,7 @@ None currently identified. Docker is installed and its server is reachable.
 
 ## 11. Decisions Made During Development
 
-Owner-approved scope decision on 2026-10-06: authentication and `TenantContext` remain in Phase 1. Document 02 section 86 clarifies that Phase 0 prepares for them without implementing them. Owner approved ASP.NET Core Identity with cookie sessions and one tenant per institutional account, with multiple accounts allowed per tenant.
+Owner-approved decisions: ASP.NET Core Identity with cookie sessions; one tenant per institutional account, with multiple accounts per tenant; school owns student registration and initiates guardian access; guardian context selection across schools is future scope; PlatformAdmin invites the initial SchoolAdmin, and SchoolAdmin invites Guardians via manually delivered, single-use activation links expiring after 24 hours.
 
 Architectural and product decisions already defined in the normative documentation must not be duplicated here.
 
@@ -107,19 +107,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 changes are present and uncommitted. No commit was created.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`. Phase 2 changes are uncommitted.
 
 ---
 
 ## 13. Next Recommended Task
 
-After explicit authorization, begin Phase 2 — School and Academic, following its scope and Gate in `docs/03-Zelloa-Development-Plan.md`.
+Present the Phase 2 checkpoint to the owner and wait for explicit authorization before starting Phase 3 — Menu and Products.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 1 was authorized on 2026-10-06. The owner approved ASP.NET Core Identity with secure cookie sessions and one tenant per institutional account, allowing multiple accounts per tenant. The clarification preserves Product Specification section 10, which allows multiple guardians per student. Authentication, CSRF protection, role policies, `/api/me`, tenant context from the authenticated identity, tenant query filtering, PlatformAdmin bootstrap, and the one-to-many account-to-tenant relation are implemented. Migrations `IdentityAndTenantFoundation` and `AllowMultipleAccountsPerTenant` were applied successfully in PostgreSQL Testcontainers. Release build completed with zero warnings. Architecture Tests (6) and Integration Tests (9) passed. The CORS test confirms only configured origins receive credentialed CORS headers. The full solution build/test command succeeded; Domain and Application test projects currently contain no tests. GitHub hosted workflow status has not been verified. Phase 1 Gate requirements are met. No Phase 2 work has started.
+Phase 1 was authorized and completed on 2026-10-06, committed as `b6e3f45`. ASP.NET Core Identity cookie sessions, CSRF, role policies, `/api/me`, tenant context and query filtering, PlatformAdmin bootstrap, and one-to-many account-to-tenant association are implemented. Phase 2 was authorized on 2026-10-06. The owner confirmed school-managed student registration, guardian invitations, and future cross-school context selection. The owner approved manual delivery of single-use activation links, valid for 24 hours, for the initial SchoolAdmin and Guardians; no external mail provider will be added. Normative documents 01, 02, 03, and 06 record this flow. Phase 2 adds school/classroom/student management, guardian accounts and links, invitation activation, and tenant/guardian access checks. The consolidated `SchoolAcademicAndInvitations` migration was applied by integration tests; EF reports no model changes. On 2026-10-06 the Release build passed with zero warnings, 6 Architecture Tests passed, and 14 Integration Tests passed. README and this handoff were updated. The Phase 2 changes remain uncommitted. Do not begin Phase 3 until the owner approves after the checkpoint.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 

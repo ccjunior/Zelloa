@@ -20,7 +20,7 @@ public static class IdentityServiceCollectionExtensions
         services.AddIdentity<ZelloaUser, IdentityRole<Guid>>(options =>
             {
                 options.User.RequireUniqueEmail = true;
-                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedEmail = true;
                 options.Password.RequiredLength = 12;
                 options.Password.RequiredUniqueChars = 4;
                 options.Password.RequireDigit = true;

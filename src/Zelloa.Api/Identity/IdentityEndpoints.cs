@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Zelloa.Application.Identity;
+using Zelloa.Api.SchoolAcademic;
 using Zelloa.Infrastructure.Identity;
 
 namespace Zelloa.Api.Identity;
@@ -30,6 +31,14 @@ public static class IdentityEndpoints
         auth.MapPost("/logout", LogoutAsync)
             .RequireAuthorization()
             .WithName("Logout")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        auth.MapPost("/activate", ActivateAsync)
+            .AllowAnonymous()
+            .AddEndpointFilter<AntiforgeryEndpointFilter>()
+            .WithName("ActivateInvitedAccount")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized);
@@ -117,6 +126,38 @@ public static class IdentityEndpoints
         return Results.NoContent();
     }
 
+    private static async Task<IResult> ActivateAsync(
+        ActivateAccountRequest request,
+        HttpContext context,
+        IdentityInvitationService invitations,
+        CancellationToken cancellationToken)
+    {
+        context.Response.Headers.CacheControl = "no-store";
+        context.Response.Headers["Referrer-Policy"] = "no-referrer";
+        if (string.IsNullOrWhiteSpace(request.Email)
+            || request.Email.Length > 256
+            || string.IsNullOrWhiteSpace(request.Token)
+            || request.Token.Length > 256
+            || string.IsNullOrEmpty(request.Password)
+            || request.Password.Length > 256)
+        {
+            return Results.BadRequest();
+        }
+
+        var result = await invitations.ActivateAsync(
+            request.Email, request.Token, request.Password, cancellationToken);
+        if (result.Status == ActivationStatus.Rejected) return Results.Unauthorized();
+        if (result.Status == ActivationStatus.InvalidPassword)
+        {
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["password"] = result.Errors.ToArray()
+            });
+        }
+
+        return Results.NoContent();
+    }
+
     private static async Task<bool> IsAntiforgeryValidAsync(
         HttpContext context,
         IAntiforgery antiforgery)
@@ -142,3 +183,4 @@ public static class IdentityEndpoints
 public sealed record CsrfTokenResponse(string RequestToken);
 
 public sealed record LoginRequest(string Email, string Password);
+public sealed record ActivateAccountRequest(string Email, string Token, string Password);

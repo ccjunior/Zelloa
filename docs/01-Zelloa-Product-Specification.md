@@ -153,6 +153,7 @@ Poderá:
 
 - administrar alunos;
 - administrar responsáveis;
+- convidar responsáveis para ativar a própria conta;
 - administrar turmas;
 - administrar produtos;
 - administrar categorias;
@@ -173,6 +174,7 @@ Será responsável por:
 - cadastrar instituições;
 - configurar tenants;
 - administrar acessos administrativos;
+- convidar o administrador inicial de cada escola para ativar a conta;
 - acompanhar integrações;
 - consultar problemas técnicos;
 - realizar operações de suporte autorizadas.
@@ -273,6 +275,10 @@ Um aluno poderá possuir mais de um responsável autorizado.
 O vínculo deverá ser explicitamente registrado.
 
 O responsável somente poderá realizar operações relacionadas aos alunos aos quais possui acesso.
+
+O administrador escolar cadastra o responsável e inicia o convite de ativação da conta. O responsável define a própria senha ao ativar o convite. A associação ao aluno é criada explicitamente pela escola; possuir uma conta, por si só, não concede acesso a nenhum aluno.
+
+No MVP, os convites serão gerados como links individuais de uso único e entregues manualmente pelo administrador que os criou. A ativação deverá ocorrer em até 24 horas. Não haverá cadastro público nem envio automatizado por provedor externo nesta fase.
 
 ---
 

@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Zelloa.Application.Identity;
+using Zelloa.Domain.Guardians;
+using Zelloa.Domain.Invitations;
+using Zelloa.Domain.Schools;
 using Zelloa.Domain.Tenants;
 using Zelloa.Infrastructure.Identity;
 
@@ -15,6 +18,12 @@ public sealed class ZelloaDbContext(
     private readonly ITenantContext _tenantContext = tenantContext;
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<School> Schools => Set<School>();
+    public DbSet<Classroom> Classrooms => Set<Classroom>();
+    public DbSet<Student> Students => Set<Student>();
+    public DbSet<Guardian> Guardians => Set<Guardian>();
+    public DbSet<GuardianStudent> GuardianStudents => Set<GuardianStudent>();
+    public DbSet<AccountInvitation> AccountInvitations => Set<AccountInvitation>();
 
     public Guid CurrentTenantId => _tenantContext.TenantId;
 
@@ -28,6 +37,99 @@ public sealed class ZelloaDbContext(
             entity.HasKey(tenant => tenant.Id);
             entity.Property(tenant => tenant.Name).HasMaxLength(200).IsRequired();
             entity.HasQueryFilter(tenant => tenant.Id == CurrentTenantId);
+        });
+
+        modelBuilder.Entity<School>(entity =>
+        {
+            entity.ToTable("Schools");
+            entity.HasKey(school => school.Id);
+            entity.Property(school => school.Name).HasMaxLength(200).IsRequired();
+            entity.Property(school => school.TradeName).HasMaxLength(200).IsRequired();
+            entity.Property(school => school.Identifier).HasMaxLength(64);
+            entity.Property(school => school.ContactEmail).HasMaxLength(256);
+            entity.Property(school => school.ContactPhone).HasMaxLength(32);
+            entity.Property(school => school.TimeZone).HasMaxLength(100).IsRequired();
+            entity.HasIndex(school => school.TenantId);
+            entity.HasQueryFilter(school => school.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(school => school.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Classroom>(entity =>
+        {
+            entity.ToTable("Classrooms");
+            entity.HasKey(classroom => classroom.Id);
+            entity.HasAlternateKey(classroom => new { classroom.TenantId, classroom.Id });
+            entity.Property(classroom => classroom.Name).HasMaxLength(200).IsRequired();
+            entity.Property(classroom => classroom.Level).HasMaxLength(100).IsRequired();
+            entity.Property(classroom => classroom.Shift).HasMaxLength(50).IsRequired();
+            entity.HasIndex(classroom => new { classroom.TenantId, classroom.AcademicYear });
+            entity.HasQueryFilter(classroom => classroom.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(classroom => classroom.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Student>(entity =>
+        {
+            entity.ToTable("Students");
+            entity.HasKey(student => student.Id);
+            entity.HasAlternateKey(student => new { student.TenantId, student.Id });
+            entity.Property(student => student.Name).HasMaxLength(200).IsRequired();
+            entity.HasIndex(student => new { student.TenantId, student.ClassroomId });
+            entity.HasQueryFilter(student => student.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(student => student.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Classroom>().WithMany()
+                .HasForeignKey(student => new { student.TenantId, student.ClassroomId })
+                .HasPrincipalKey(classroom => new { classroom.TenantId, classroom.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Guardian>(entity =>
+        {
+            entity.ToTable("Guardians");
+            entity.HasKey(guardian => guardian.Id);
+            entity.HasAlternateKey(guardian => new { guardian.TenantId, guardian.Id });
+            entity.Property(guardian => guardian.DisplayName).HasMaxLength(200).IsRequired();
+            entity.HasIndex(guardian => guardian.TenantId);
+            entity.HasQueryFilter(guardian => guardian.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(guardian => guardian.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ZelloaUser>().WithOne()
+                .HasForeignKey<Guardian>(guardian => guardian.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<GuardianStudent>(entity =>
+        {
+            entity.ToTable("GuardianStudents");
+            entity.HasKey(link => new { link.GuardianId, link.StudentId });
+            entity.HasIndex(link => new { link.TenantId, link.StudentId });
+            entity.HasQueryFilter(link => link.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(link => link.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Guardian>().WithMany()
+                .HasForeignKey(link => new { link.TenantId, link.GuardianId })
+                .HasPrincipalKey(guardian => new { guardian.TenantId, guardian.Id })
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Student>().WithMany()
+                .HasForeignKey(link => new { link.TenantId, link.StudentId })
+                .HasPrincipalKey(student => new { student.TenantId, student.Id })
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AccountInvitation>(entity =>
+        {
+            entity.ToTable("AccountInvitations");
+            entity.HasKey(invitation => invitation.Id);
+            entity.Property(invitation => invitation.Role).HasMaxLength(64).IsRequired();
+            entity.Property(invitation => invitation.TokenHash).HasMaxLength(64).IsRequired();
+            entity.HasIndex(invitation => invitation.TokenHash).IsUnique();
+            entity.HasIndex(invitation => new { invitation.TenantId, invitation.UserId });
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(invitation => invitation.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<ZelloaUser>().WithMany().HasForeignKey(invitation => invitation.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<IdentityRole<Guid>>().HasData(

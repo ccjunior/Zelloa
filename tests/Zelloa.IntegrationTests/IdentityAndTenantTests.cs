@@ -15,6 +15,8 @@ using Testcontainers.PostgreSql;
 using Zelloa.Api.Identity;
 using Zelloa.Application.Identity;
 using Zelloa.Domain.Tenants;
+using Zelloa.Domain.Schools;
+using Zelloa.Domain.Guardians;
 using Zelloa.Infrastructure.Identity;
 using Zelloa.Infrastructure.Persistence;
 
@@ -25,6 +27,8 @@ public sealed class IdentityAndTenantTests(IdentityTenantFixture fixture) : ICla
     private const string Password = "Zelloa-Test!Password42";
     private static readonly Guid TenantAId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid TenantBId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    private static readonly Guid StudentAId = Guid.Parse("aaaaaaaa-1111-1111-1111-111111111111");
+    private static readonly Guid StudentBId = Guid.Parse("bbbbbbbb-2222-2222-2222-222222222222");
 
     private readonly IdentityTenantFixture _fixture = fixture;
 
@@ -282,6 +286,8 @@ public sealed class IdentityTenantFixture : IAsyncLifetime
     private const string Password = "Zelloa-Test!Password42";
     private static readonly Guid TenantAId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid TenantBId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    private static readonly Guid StudentAId = Guid.Parse("aaaaaaaa-1111-1111-1111-111111111111");
+    private static readonly Guid StudentBId = Guid.Parse("bbbbbbbb-2222-2222-2222-222222222222");
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
 
     public WebApplicationFactory<Program> Factory { get; private set; } = null!;
@@ -294,6 +300,10 @@ public sealed class IdentityTenantFixture : IAsyncLifetime
     });
 
     public Guid TenantAUserId { get; private set; }
+    public Guid TenantAAdminUserId { get; private set; }
+    public Guid TenantBUserId { get; private set; }
+    public Guid TenantAStudentId => StudentAId;
+    public Guid TenantBStudentId => StudentBId;
 
     public async Task InitializeAsync()
     {
@@ -309,11 +319,21 @@ public sealed class IdentityTenantFixture : IAsyncLifetime
             dbContext.Tenants.AddRange(
                 new Tenant(TenantAId, "Escola A"),
                 new Tenant(TenantBId, "Escola B"));
+            dbContext.Schools.AddRange(
+                new School(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1"), TenantAId, "Escola A", "Escola A", null, null, null, "America/Bahia"),
+                new School(Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2"), TenantBId, "Escola B", "Escola B", null, null, null, "America/Bahia"));
+            dbContext.Classrooms.AddRange(
+                new Classroom(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaac1"), TenantAId, "1º Ano A", "Fundamental I", "Matutino", 2026),
+                new Classroom(Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbc2"), TenantBId, "2º Ano B", "Fundamental I", "Vespertino", 2026));
+            dbContext.Students.AddRange(
+                new Student(StudentAId, TenantAId, Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaac1"), "Aluno A"),
+                new Student(StudentBId, TenantBId, Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbc2"), "Aluno B"));
             await dbContext.SaveChangesAsync();
         }
 
         await CreateRoleAndUserAsync("Guardian", "responsavel-a@zelloa.test", "Responsável A", TenantAId);
         await CreateRoleAndUserAsync("Guardian", "responsavel-b@zelloa.test", "Responsável B", TenantBId);
+        await CreateRoleAndUserAsync("SchoolAdmin", "admin-a@zelloa.test", "Admin Escola A", TenantAId);
     }
 
     public async Task DisposeAsync()
@@ -343,7 +363,8 @@ public sealed class IdentityTenantFixture : IAsyncLifetime
             UserName = email,
             Email = email,
             DisplayName = displayName,
-            TenantId = tenantId
+            TenantId = tenantId,
+            EmailConfirmed = true
         };
 
         var createResult = await userManager.CreateAsync(user, Password);
@@ -352,10 +373,19 @@ public sealed class IdentityTenantFixture : IAsyncLifetime
         var addRoleResult = await userManager.AddToRoleAsync(user, roleName);
         Assert.True(addRoleResult.Succeeded, string.Join("; ", addRoleResult.Errors.Select(error => error.Description)));
 
+        if (roleName == ZelloaRoles.Guardian)
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ZelloaDbContext>();
+            dbContext.Guardians.Add(new Guardian(user.Id, tenantId, displayName));
+            await dbContext.SaveChangesAsync();
+        }
+
         if (tenantId == TenantAId)
         {
-            TenantAUserId = user.Id;
+            if (roleName == ZelloaRoles.Guardian) TenantAUserId = user.Id;
+            if (roleName == ZelloaRoles.SchoolAdmin) TenantAAdminUserId = user.Id;
         }
+        else if (roleName == ZelloaRoles.Guardian) TenantBUserId = user.Id;
     }
 
     private sealed class ZelloaApiFactory(string connectionString) : WebApplicationFactory<Program>
@@ -372,7 +402,9 @@ public sealed class IdentityTenantFixture : IAsyncLifetime
             builder.ConfigureAppConfiguration((_, configuration) =>
                 configuration.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["Cors:AllowedOrigins:0"] = "http://localhost:4200"
+                    ["Cors:AllowedOrigins:0"] = "http://localhost:4200",
+                    ["InvitationUrls:Family"] = "https://family.zelloa.test/activate-invitation",
+                    ["InvitationUrls:School"] = "https://school.zelloa.test/activate-invitation"
                 }));
         }
     }

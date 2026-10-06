@@ -588,16 +588,29 @@ Request conceitual:
 ```json
 {
   "name": "Escola Exemplo",
-  "document": "...",
+  "tradeName": "Escola Exemplo",
+  "identifier": "...",
+  "contactEmail": "secretaria@escola.example",
+  "contactPhone": "+5571999990000",
   "timezone": "America/Bahia"
 }
 ```
+
+`contactEmail`, `contactPhone` e `identifier` são opcionais. Não armazenar dados pessoais de alunos além do necessário à operação.
 
 Resposta:
 
 ```text
 201 Created
 ```
+
+A operação cria o Tenant de isolamento e sua primeira School na mesma transação. O `PlatformAdmin` deverá então gerar o convite do administrador escolar inicial:
+
+```text
+POST /api/schools/{schoolId}/administrator-invitation
+```
+
+Autorização: `PlatformAdmin`. Request: `displayName` e `email`. A resposta contém um `activationUrl` de uso único, entregue manualmente ao administrador. A URL expira em 24 horas.
 
 ---
 
@@ -825,7 +838,24 @@ Autorização:
 CanManageSchool
 ```
 
-Os dados exatos dependerão da estratégia de Identity.
+Request conceitual:
+
+```json
+{
+  "displayName": "Maria Silva",
+  "email": "maria@example.com"
+}
+```
+
+A operação cria a conta pendente com papel `Guardian`, cria o perfil Guardian e retorna um `activationUrl` individual de uso único para entrega manual. A conta não acessa alunos até que a escola crie um vínculo explícito. Respostas contendo links de ativação usam `Cache-Control: no-store`.
+
+Consultar responsável:
+
+```text
+GET /api/guardians/{guardianId}
+```
+
+Autorização: `CanManageSchool`; o registro deverá pertencer ao tenant atual.
 
 ---
 
@@ -1545,9 +1575,17 @@ POST /api/auth/logout
 
 `GET /api/auth/csrf` emite os valores necessários para proteção antifalsificação. Login e logout exigem o token no header `X-XSRF-TOKEN`. Login recebe email e senha e estabelece o cookie autenticado; logout invalida a sessão. Não há cadastro público de contas.
 
+A ativação de contas convidadas é feita por:
+
+```text
+POST /api/auth/activate
+```
+
+Request: `email`, `token` e `password`. A ativação exige o token antifalsificação no header `X-XSRF-TOKEN`; a senha é definida pelo próprio convidado. O token é aleatório, armazenado somente como hash, de uso único e expira em 24 horas. A resposta e o link de ativação deverão usar `Cache-Control: no-store`. O link é entregue manualmente pelo administrador que iniciou o convite.
+
 O primeiro `PlatformAdmin` é criado por bootstrap único no backend, usando credenciais secretas de ambiente; não há credenciais padrão no repositório.
 
-Os três endpoints de autenticação deverão aplicar `Cache-Control: no-store` às respostas sensíveis. Credenciais inválidas deverão produzir resposta genérica sem revelar se a conta existe.
+Os endpoints de autenticação e convite deverão aplicar `Cache-Control: no-store` às respostas sensíveis. Credenciais inválidas deverão produzir resposta genérica sem revelar se a conta existe.
 
 Resposta:
 
@@ -2055,12 +2093,14 @@ IDENTITY
 GET    /api/auth/csrf
 POST   /api/auth/login
 POST   /api/auth/logout
+POST   /api/auth/activate
 GET    /api/me
 
 
 SCHOOL
 
 POST   /api/schools
+POST   /api/schools/{schoolId}/administrator-invitation
 GET    /api/school
 PUT    /api/school
 
@@ -2080,11 +2120,13 @@ POST   /api/students
 GET    /api/students
 GET    /api/students/{id}
 PUT    /api/students/{id}
+PATCH  /api/students/{id}/status
 
 
 GUARDIANS
 
 POST   /api/guardians
+GET    /api/guardians/{id}
 POST   /api/students/{studentId}/guardians/{guardianId}
 DELETE /api/students/{studentId}/guardians/{guardianId}
 
