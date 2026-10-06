@@ -1,6 +1,8 @@
 using Zelloa.Infrastructure;
 using Zelloa.Api.Identity;
 using Zelloa.Api.SchoolAcademic;
+using Zelloa.Api.Catalog;
+using Zelloa.Application.Catalog;
 using Zelloa.Application.SchoolAcademic;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,8 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddZelloaIdentity(builder.Configuration, builder.Environment);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<SchoolOperations>();
+builder.Services.AddScoped<CategoryOperations>();
+builder.Services.AddScoped<ProductOperations>();
 builder.Services.AddScoped<ClassroomOperations>();
 builder.Services.AddScoped<StudentOperations>();
 builder.Services.AddScoped<GuardianOperations>();
@@ -28,6 +32,7 @@ app.MapOpenApi();
 app.MapHealthChecks("/health");
 app.MapIdentityEndpoints();
 app.MapSchoolAcademicEndpoints();
+app.MapCatalogEndpoints();
 
 await app.Services.BootstrapPlatformAdminAsync(app.Configuration);
 

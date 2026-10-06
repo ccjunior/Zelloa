@@ -1,8 +1,8 @@
 # Zelloa — Current Development State
 
 **Last Updated:** 2026-10-06  
-**Current Phase:** Phase 2 — School and Academic
-**Phase Status:** COMPLETE — Phase 2 Gate met; awaiting owner checkpoint before any Phase 3 work
+**Current Phase:** Phase 3 — Catalog
+**Phase Status:** IN PROGRESS — core catalog implemented; product image representation awaits owner decision
 **Last Completed Phase:** Phase 2 — School and Academic
 **Last Completed Gate:** Gate — Phase 2
 
@@ -10,9 +10,9 @@
 
 ## 1. Current Objective
 
-Phase 2 — School and Academic is authorized. Implement only its scope and Gate requirements.
+Phase 3 — Catalog is authorized. Core implementation is complete, but finalizing its data model and Gate awaits the owner's decision on optional product images.
 
-Phase 0 established the technical foundation; Phase 1 implemented authentication, authorization, and tenant context. Phase 2 is complete and its checkpoint is pending presentation; Phase 3 has not been authorized.
+Phase 0 established the technical foundation; Phase 1 implemented authentication, authorization, and tenant context. Phase 2 completed school and academic records, guardian links, and invitations.
 
 ---
 
@@ -37,28 +37,28 @@ Available normative documentation:
 
 ## 3. Work In Progress
 
-No Phase 2 implementation work remains. Phase 1 is committed as `b6e3f45`. Phase 2 changes are currently uncommitted.
+The core Phase 3 implementation is committed as `d3fc61b` (`feat: add tenant-scoped catalog management`). Phase 1 is committed as `b6e3f45`; Phase 2 is committed as `7421fa0` (`feat: implement school and academic phase`). Further Phase 3 changes await the owner's image representation decision.
 
 ---
 
 ## 4. Pending Work — Current Phase
 
-The Phase 2 Gate is complete: schools, classrooms, students, guardian profiles and links are implemented; tenant ownership and guardian access checks are covered; PlatformAdmin invites the first SchoolAdmin; SchoolAdmin invites guardians; activation links are single-use and valid for 24 hours. Invitation delivery is manual. No Phase 3 work is authorized until the Phase 2 checkpoint is presented and the owner explicitly approves the next phase.
+The core Phase 3 implementation is complete: categories and products can be created, updated, listed and deactivated; product prices and availability are managed independently; the Family catalog returns only active categories and active, available products. Tenant isolation and role/antiforgery protections are covered by PostgreSQL integration tests. The product spec requires an optional image but does not define its representation. Current code and API draft use an HTTPS URL with no upload/storage provider; this data model choice awaits owner approval before finalizing the Gate.
 
 ---
 
 ## 5. Database State
 
 **Database:** PostgreSQL 17; Testcontainers and Compose connectivity validated; local Compose volume retained  
-**Latest Migration:** `SchoolAcademicAndInvitations`, following `AllowMultipleAccountsPerTenant`. EF reports no pending model changes. All migrations were applied successfully by PostgreSQL Testcontainers integration tests.
+**Latest Migration:** `CatalogFoundation`, following `SchoolAcademicAndInvitations`. EF reports no pending model changes. All migrations were applied successfully by PostgreSQL Testcontainers integration tests.
 
 ---
 
 ## 6. Backend State
 
-**Solution:** `Zelloa.sln` initialized with four source projects and four test projects  
-**Build:** PASS, Release, zero warnings  
-**Tests:** PASS — 6 Architecture Tests and 14 PostgreSQL integration/security tests. Domain/Application test projects contain no tests.
+**Solution:** `Zelloa.sln` initialized with four source projects and four test projects
+**Build:** PASS, Release, zero warnings.
+**Tests:** PASS — 6 Architecture Tests and 17 PostgreSQL integration/security tests. Domain/Application test projects contain no tests.
 
 ---
 
@@ -91,7 +91,7 @@ The hosted GitHub Actions workflow has not yet been verified after Git was confi
 
 ## 10. Blockers
 
-None currently identified. Docker is installed and its server is reachable.
+Owner decision required: choose how optional product images are represented. Docker is installed and its server is reachable.
 
 ---
 
@@ -107,19 +107,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`. Phase 2 changes are uncommitted.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`; Phase 2 is committed as `7421fa0`; Phase 3 core implementation is committed as `d3fc61b`. The current branch is one commit ahead of `origin/main`.
 
 ---
 
 ## 13. Next Recommended Task
 
-Present the Phase 2 checkpoint to the owner and wait for explicit authorization before starting Phase 3 — Menu and Products.
+Obtain the owner's decision on optional product images, then finalize the Phase 3 Gate and present its checkpoint.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 1 was authorized and completed on 2026-10-06, committed as `b6e3f45`. ASP.NET Core Identity cookie sessions, CSRF, role policies, `/api/me`, tenant context and query filtering, PlatformAdmin bootstrap, and one-to-many account-to-tenant association are implemented. Phase 2 was authorized on 2026-10-06. The owner confirmed school-managed student registration, guardian invitations, and future cross-school context selection. The owner approved manual delivery of single-use activation links, valid for 24 hours, for the initial SchoolAdmin and Guardians; no external mail provider will be added. Normative documents 01, 02, 03, and 06 record this flow. Phase 2 adds school/classroom/student management, guardian accounts and links, invitation activation, and tenant/guardian access checks. The consolidated `SchoolAcademicAndInvitations` migration was applied by integration tests; EF reports no model changes. On 2026-10-06 the Release build passed with zero warnings, 6 Architecture Tests passed, and 14 Integration Tests passed. README and this handoff were updated. The Phase 2 changes remain uncommitted. Do not begin Phase 3 until the owner approves after the checkpoint.
+Phase 1 was authorized and completed on 2026-10-06, committed as `b6e3f45`. Phase 2 was authorized and completed on 2026-10-06, committed as `7421fa0`. Phase 3 was authorized on 2026-10-06. Catalog categories and products support create/update/list/status operations, BRL prices, availability, paginated administration, and a tenant-scoped Family catalog query. The API specification was aligned with the higher-priority Development Plan to document category update/status and product status endpoints. Optional product imagery is unspecified beyond being optional in the product spec; the current implementation stores an HTTPS URL and does not upload/store files. This data model decision awaits owner approval before the Phase 3 Gate is finalized. Migration `CatalogFoundation` was applied by PostgreSQL Testcontainers; EF reports no pending model changes. Release build passed with zero warnings; 6 Architecture Tests and 17 Integration Tests passed. `git diff --check` passed. The core implementation is committed as `d3fc61b`. Do not begin Phase 4.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 

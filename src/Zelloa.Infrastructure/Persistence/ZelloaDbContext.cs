@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Zelloa.Domain.Catalog;
 using Zelloa.Application.Identity;
 using Zelloa.Domain.Guardians;
 using Zelloa.Domain.Invitations;
@@ -18,6 +19,8 @@ public sealed class ZelloaDbContext(
     private readonly ITenantContext _tenantContext = tenantContext;
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Product> Products => Set<Product>();
     public DbSet<School> Schools => Set<School>();
     public DbSet<Classroom> Classrooms => Set<Classroom>();
     public DbSet<Student> Students => Set<Student>();
@@ -52,6 +55,37 @@ public sealed class ZelloaDbContext(
             entity.HasIndex(school => school.TenantId);
             entity.HasQueryFilter(school => school.TenantId == CurrentTenantId);
             entity.HasOne<Tenant>().WithMany().HasForeignKey(school => school.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.ToTable("Categories");
+            entity.HasKey(category => category.Id);
+            entity.HasAlternateKey(category => new { category.TenantId, category.Id });
+            entity.Property(category => category.Name).HasMaxLength(100).IsRequired();
+            entity.HasIndex(category => new { category.TenantId, category.Name });
+            entity.HasQueryFilter(category => category.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(category => category.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.ToTable("Products", table => table.HasCheckConstraint("CK_Products_Price_Positive", "\"Price\" > 0"));
+            entity.HasKey(product => product.Id);
+            entity.HasAlternateKey(product => new { product.TenantId, product.Id });
+            entity.Property(product => product.Name).HasMaxLength(200).IsRequired();
+            entity.Property(product => product.Description).HasMaxLength(2000);
+            entity.Property(product => product.Price).HasPrecision(18, 2);
+            entity.Property(product => product.ImageUrl).HasMaxLength(2048);
+            entity.HasIndex(product => new { product.TenantId, product.CategoryId, product.IsActive, product.IsAvailable });
+            entity.HasQueryFilter(product => product.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(product => product.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Category>().WithMany()
+                .HasForeignKey(product => new { product.TenantId, product.CategoryId })
+                .HasPrincipalKey(category => new { category.TenantId, category.Id })
                 .OnDelete(DeleteBehavior.Restrict);
         });
 

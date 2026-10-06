@@ -934,6 +934,32 @@ Autorização:
 CanManageCatalog
 ```
 
+Resposta: `201 Created` com `id`, `name` e `isActive` (inicialmente `true`).
+
+## Atualizar categoria
+
+```text
+PUT /api/catalog/categories/{categoryId}
+```
+
+Request:
+
+```json
+{
+  "name": "Salgados"
+}
+```
+
+## Alterar status da categoria
+
+```text
+PATCH /api/catalog/categories/{categoryId}/status
+```
+
+Request: `{ "status": "Active" }` ou `{ "status": "Inactive" }`.
+
+As operações de criação, atualização e alteração de status exigem antifalsificação.
+
 ---
 
 # 49. Listar Categorias
@@ -944,7 +970,7 @@ Administração:
 GET /api/catalog/categories
 ```
 
-Pode incluir inativas conforme autorização/filtro.
+Autorização: `CanManageCatalog`. Aceita `status` (`Active` ou `Inactive`), `search`, `page` e `pageSize`. A resposta é paginada e pode incluir categorias inativas conforme o filtro.
 
 ---
 
@@ -961,13 +987,17 @@ Request:
 ```json
 {
   "name": "Pão de queijo",
+  "description": "Porção individual",
   "categoryId": "...",
   "price": 5.50,
+  "imageUrl": "https://cdn.example.com/products/pao-de-queijo.jpg",
   "available": true
 }
 ```
 
 Backend valida categoria/tenant.
+
+`description` e `imageUrl` são opcionais. `imageUrl`, quando informado, deve ser uma URL HTTPS absoluta; upload e armazenamento de arquivos não fazem parte desta fase. `price` é um valor decimal em BRL, maior que zero, com até duas casas decimais. O produto inicia ativo.
 
 ---
 
@@ -976,6 +1006,8 @@ Backend valida categoria/tenant.
 ```text
 PUT /api/catalog/products/{productId}
 ```
+
+Autorização: `CanManageCatalog`. Atualiza `name`, `description`, `categoryId`, `price` e `imageUrl`; status e disponibilidade são alterados em operações próprias.
 
 Preço alterado não modifica snapshots de pedidos anteriores.
 
@@ -995,6 +1027,20 @@ Exemplo:
 }
 ```
 
+Autorização: `CanManageCatalog`; exige antifalsificação.
+
+## Alterar status do produto
+
+```text
+PATCH /api/catalog/products/{productId}/status
+```
+
+Request: `{ "status": "Active" }` ou `{ "status": "Inactive" }`.
+
+Autorização: `CanManageCatalog`; exige antifalsificação.
+
+Listagem e consulta administrativa usam `CanManageCatalog`. A listagem aceita `categoryId`, `status`, `availability`, `search`, `page` e `pageSize`, e retorna resposta paginada.
+
 ---
 
 # 53. Catálogo para Family
@@ -1005,7 +1051,7 @@ Endpoint otimizado para consumo do responsável:
 GET /api/catalog/available
 ```
 
-Não retornar produtos indisponíveis.
+Autorização: usuário autenticado no papel `Guardian`. Retorna somente categorias ativas com produtos ativos e disponíveis; não retornar produtos indisponíveis.
 
 Resposta conceitual:
 
@@ -1019,7 +1065,9 @@ Resposta conceitual:
         {
           "id": "...",
           "name": "Pão de queijo",
-          "price": 5.50
+          "description": "Porção individual",
+          "price": 5.50,
+          "imageUrl": "https://cdn.example.com/products/pao-de-queijo.jpg"
         }
       ]
     }
@@ -2137,12 +2185,15 @@ CATALOG
 
 POST   /api/catalog/categories
 GET    /api/catalog/categories
+PUT    /api/catalog/categories/{id}
+PATCH  /api/catalog/categories/{id}/status
 
 POST   /api/catalog/products
 GET    /api/catalog/products
 GET    /api/catalog/products/{id}
 PUT    /api/catalog/products/{id}
 PATCH  /api/catalog/products/{id}/availability
+PATCH  /api/catalog/products/{id}/status
 
 GET    /api/catalog/available
 
