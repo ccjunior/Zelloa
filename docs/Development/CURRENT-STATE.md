@@ -85,19 +85,19 @@ No Phase 0 work remains. The next phase is Phase 1 — Identity and Multi-Tenanc
 
 **Docker:** Compose images built; all 4 services ran successfully and were stopped after validation  
 **PostgreSQL:** Compose health check and baseline migration validated; named volume retained  
-**CI:** GitHub Actions workflow created; its restore/build/test and npm ci/lint/test/build commands passed locally. Hosted workflow not triggered because the project has no Git repository or remote.
+**CI:** GitHub Actions workflow created; its restore/build/test and npm ci/lint/test/build commands passed locally. Git is now initialized with remote `origin`; hosted workflow status has not yet been verified.
 
 ---
 
 ## 9. Known Issues
 
-The Domain and Application test projects currently contain no feature tests because Phase 0 has no business logic. The hosted GitHub Actions workflow has not been triggered because the project directory is intentionally not initialized as a Git repository.
+The Domain and Application test projects currently contain no feature tests because Phase 0 has no business logic. The hosted GitHub Actions workflow has not yet been verified after Git was configured.
 
 ---
 
 ## 10. Blockers
 
-None currently identified. Docker is installed and its server is reachable. The project directory is intentionally not initialized as a Git repository, as confirmed by the project owner.
+None currently identified. Docker is installed and its server is reachable.
 
 ---
 
@@ -113,19 +113,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-The project directory is intentionally not initialized as a Git repository. Do not initialize Git unless requested. Phase 0 is complete and validated.
+Git is initialized. On 2026-10-06, `git status --short --branch` reported a clean `main` branch tracking `origin/main`; remote `origin` is configured. No uncommitted changes were present at that check. Phase 0 is complete and validated.
 
 ---
 
 ## 13. Next Recommended Task
 
-Wait for explicit authorization to begin Phase 1 — Identity and Multi-Tenancy. Do not initialize Git and do not start Phase 1 automatically.
+Wait for explicit authorization to begin Phase 1 — Identity and Multi-Tenancy. Do not start Phase 1 automatically.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 0 implementation was authorized on 2026-10-05. On 2026-10-06, the owner approved keeping authentication and `TenantContext` in Phase 1, and Document 02 section 86 was updated. The `FoundationBaseline` migration was generated and applied. Release build completed with zero warnings. Architecture Tests (6), the PostgreSQL Testcontainers integration test (1), frontend lint for six projects, frontend tests (8), and both production builds passed. Docker Compose built and ran PostgreSQL, API, Family, and School; `/health`, OpenAPI, both app roots, PWA manifest, icon, and service worker returned HTTP 200 where applicable. Containers and Docker Desktop were stopped after validation; the local database volume remains. The GitHub workflow's commands were executed locally; no hosted run was possible because the project has no Git repository or remote. The Phase 0 Gate is achieved. Do not start Phase 1 without explicit owner authorization.
+Phase 0 implementation was authorized on 2026-10-05. On 2026-10-06, the owner approved keeping authentication and `TenantContext` in Phase 1, and Document 02 section 86 was updated. The `FoundationBaseline` migration was generated and applied. Release build completed with zero warnings. Architecture Tests (6), the PostgreSQL Testcontainers integration test (1), frontend lint for six projects, frontend tests (8), and both production builds passed. Docker Compose built and ran PostgreSQL, API, Family, and School; `/health`, OpenAPI, both app roots, PWA manifest, icon, and service worker returned HTTP 200 where applicable. Containers and Docker Desktop were stopped after validation; the local database volume remains. The GitHub workflow's commands were executed locally; no hosted run was verified at Phase 0 completion. The owner subsequently configured Git. On 2026-10-06, the repository was verified clean on `main` tracking `origin/main`, with remote `origin` configured. The Phase 0 Gate is achieved. Do not start Phase 1 without explicit owner authorization.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 
