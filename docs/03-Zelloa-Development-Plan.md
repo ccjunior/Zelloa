@@ -338,6 +338,10 @@ Implementar autenticação conforme estratégia definida durante a fase.
 
 Não criar mecanismo próprio de criptografia.
 
+Decisão aprovada em 2026-10-06: utilizar ASP.NET Core Identity com sessão por cookie autenticado; não emitir JWT próprio nem integrar provedor OIDC externo nesta fase. Proteger endpoints que alteram estado contra CSRF e configurar CORS com origins explícitas.
+
+Decisão aprovada em 2026-10-06: cada conta institucional pertence a uma instituição, e uma instituição pode ter várias contas institucionais. Isso permite contas distintas para vários responsáveis da mesma escola. `PlatformAdmin` é global e não pertence a tenant.
+
 ---
 
 # 18. Current User
@@ -353,6 +357,8 @@ UserId
 IsAuthenticated
 Roles
 ```
+
+Expor o usuário autenticado por `GET /api/me`. O endpoint deverá informar `tenantId` para contas institucionais e `null` para `PlatformAdmin`.
 
 ---
 

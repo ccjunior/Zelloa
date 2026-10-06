@@ -894,6 +894,8 @@ O TenantId deverá ser resolvido pelo contexto autenticado.
 
 Nunca confiar em um `TenantId` arbitrário enviado pelo frontend.
 
+Para usuários institucionais, o `TenantId` será incluído pelo servidor na identidade autenticada após validar a associação da conta. O cliente não poderá selecionar ou sobrescrever esse valor em uma requisição.
+
 ---
 
 # 33. Isolamento entre Tenants
@@ -940,6 +942,22 @@ Zelloa School
 `PlatformAdmin` será reservado para administração interna.
 
 Não haverá frontend próprio para esse perfil no MVP.
+
+## Estratégia de autenticação
+
+Utilizar ASP.NET Core Identity para contas, credenciais e papéis, com sessão por cookie autenticado.
+
+O cookie de sessão deverá utilizar `HttpOnly`, `Secure` em produção e `SameSite` apropriado. Endpoints que alteram estado deverão exigir proteção antifalsificação. A API deverá permitir credenciais somente para origins configuradas explicitamente.
+
+Não emitir JWT próprio nem depender de provedor OIDC externo nesta fase. Não implementar criptografia ou armazenamento de senhas próprios.
+
+O primeiro `PlatformAdmin` poderá ser criado por bootstrap único usando email e senha fornecidos somente por configuração secreta de ambiente. O bootstrap não deverá definir credenciais padrão nem registrar a senha em logs. Aplicar a migration de Identity antes de configurar o bootstrap.
+
+## Associação de conta e instituição
+
+Cada conta institucional pertence a exatamente um tenant, e um tenant pode possuir várias contas institucionais. Essa cardinalidade permite que diferentes responsáveis tenham contas próprias na mesma instituição, conforme a Especificação do Produto, seção 10.
+
+Representar a associação com `TenantId` anulável na conta; não criar índice único sobre `TenantId`. `PlatformAdmin` é uma conta global e não pertence a um tenant. O `TenantId` institucional é copiado para a identidade autenticada pelo servidor e consumido por `ITenantContext`.
 
 ---
 

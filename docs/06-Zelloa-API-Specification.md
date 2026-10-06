@@ -212,7 +212,11 @@ Não expor IDs incrementais caso isso aumente risco de enumeração sem necessid
 
 Endpoints privados exigem usuário autenticado.
 
-A estratégia concreta de Identity será definida durante implementação da fase correspondente.
+Utilizar ASP.NET Core Identity com sessão por cookie autenticado. O cookie deverá ser `HttpOnly`, `Secure` em produção e possuir política `SameSite` explícita. Não emitir JWT próprio nem integrar provedor OIDC nesta fase.
+
+Configurar CORS somente para origins autorizadas e com suporte a credenciais. Endpoints que alteram estado deverão validar token antifalsificação enviado no header `X-XSRF-TOKEN`.
+
+O tenant é extraído da identidade autenticada emitida pelo servidor; um `TenantId` enviado pelo cliente nunca substitui esse contexto. Cada conta institucional pertence a uma instituição, e uma instituição pode ter várias contas; `PlatformAdmin` é global e não possui tenant.
 
 A API deverá possuir abstração equivalente a:
 
@@ -1531,17 +1535,34 @@ Endpoint útil:
 GET /api/me
 ```
 
+Autenticação:
+
+```text
+GET  /api/auth/csrf
+POST /api/auth/login
+POST /api/auth/logout
+```
+
+`GET /api/auth/csrf` emite os valores necessários para proteção antifalsificação. Login e logout exigem o token no header `X-XSRF-TOKEN`. Login recebe email e senha e estabelece o cookie autenticado; logout invalida a sessão. Não há cadastro público de contas.
+
+O primeiro `PlatformAdmin` é criado por bootstrap único no backend, usando credenciais secretas de ambiente; não há credenciais padrão no repositório.
+
+Os três endpoints de autenticação deverão aplicar `Cache-Control: no-store` às respostas sensíveis. Credenciais inválidas deverão produzir resposta genérica sem revelar se a conta existe.
+
 Resposta:
 
 ```json
 {
   "userId": "...",
   "displayName": "...",
+  "tenantId": "...",
   "roles": [
     "Guardian"
   ]
 }
 ```
+
+`tenantId` é `null` para `PlatformAdmin`. Requisições sem sessão válida recebem `401 Unauthorized`.
 
 Não retornar claims internas desnecessárias.
 
@@ -2031,6 +2052,9 @@ Resumo:
 ```text
 IDENTITY
 
+GET    /api/auth/csrf
+POST   /api/auth/login
+POST   /api/auth/logout
 GET    /api/me
 
 

@@ -22,6 +22,10 @@ services:
     environment:
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__ZelloaDatabase: Host=postgres;Port=5432;Database=zelloa;Username=zelloa;Password=zelloa-local
+      IdentityBootstrap__PlatformAdmin__Email: ${ZELLOA_BOOTSTRAP_ADMIN_EMAIL:-}
+      IdentityBootstrap__PlatformAdmin__Password: ${ZELLOA_BOOTSTRAP_ADMIN_PASSWORD:-}
+      Cors__AllowedOrigins__0: ${ZELLOA_CORS_ALLOWED_ORIGIN_0:-http://localhost:8081}
+      Cors__AllowedOrigins__1: ${ZELLOA_CORS_ALLOWED_ORIGIN_1:-http://localhost:8082}
     ports:
       - "8080:8080"
     depends_on:

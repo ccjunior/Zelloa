@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Zelloa.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Zelloa.Infrastructure.Persistence;
 namespace Zelloa.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ZelloaDbContext))]
-    partial class ZelloaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006181820_IdentityAndTenantFoundation")]
+    partial class IdentityAndTenantFoundation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -268,7 +271,10 @@ namespace Zelloa.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_AspNetUsers_TenantId")
+                        .HasFilter("\"TenantId\" IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -327,8 +333,8 @@ namespace Zelloa.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Zelloa.Infrastructure.Identity.ZelloaUser", b =>
                 {
                     b.HasOne("Zelloa.Domain.Tenants.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
+                        .WithOne()
+                        .HasForeignKey("Zelloa.Infrastructure.Identity.ZelloaUser", "TenantId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Tenant");

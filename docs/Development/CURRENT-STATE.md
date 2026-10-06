@@ -1,24 +1,18 @@
 # Zelloa — Current Development State
 
 **Last Updated:** 2026-10-06  
-**Current Phase:** Phase 0 — Foundation  
-**Phase Status:** COMPLETE — Phase 0 Gate achieved; awaiting authorization for the next phase  
-**Last Completed Phase:** Phase 0 — Foundation  
-**Last Completed Gate:** Gate — Phase 0
+**Current Phase:** Phase 1 — Identity and Multi-Tenancy
+**Phase Status:** COMPLETE — Gate 1 met; awaiting explicit authorization before Phase 2
+**Last Completed Phase:** Phase 1 — Identity and Multi-Tenancy
+**Last Completed Gate:** Gate — Phase 1
 
 ---
 
 ## 1. Current Objective
 
-Execute:
+Phase 1 — Identity and Multi-Tenancy is complete. Do not begin Phase 2 until the owner explicitly authorizes it.
 
-**Phase 0 — Foundation**
-
-as defined in:
-
-`/docs/03-Zelloa-Development-Plan.md`
-
-The goal of this phase is to establish the technical foundation of the Zelloa repository without implementing business features from future phases.
+Phase 0 established the technical foundation; Phase 1 implemented authentication, authorization, and tenant context without adding business features from future phases.
 
 ---
 
@@ -43,20 +37,20 @@ Available normative documentation:
 
 ## 3. Work In Progress
 
-None. Phase 0 Gate is complete. Do not start Phase 1 until explicitly authorized by the owner.
+Phase 1 is complete. ASP.NET Core Identity with secure cookie sessions is implemented. Each institutional account belongs to one tenant, and a tenant may have multiple accounts, consistent with Product Specification section 10.
 
 ---
 
 ## 4. Pending Work — Current Phase
 
-No Phase 0 work remains. The next phase is Phase 1 — Identity and Multi-Tenancy; wait for explicit owner authorization before starting it.
+No Phase 1 work remains. Phase 2 — School and Academic is next, but requires explicit authorization.
 
 ---
 
 ## 5. Database State
 
 **Database:** PostgreSQL 17; Testcontainers and Compose connectivity validated; local Compose volume retained  
-**Latest Migration:** `20261006172821_FoundationBaseline` applied; no business tables created
+**Latest Migration:** `AllowMultipleAccountsPerTenant`, following `IdentityAndTenantFoundation`; all migrations applied successfully by PostgreSQL Testcontainers integration tests. The local Compose database volume remains at the Phase 0 baseline.
 
 ---
 
@@ -64,7 +58,7 @@ No Phase 0 work remains. The next phase is Phase 1 — Identity and Multi-Tenanc
 
 **Solution:** `Zelloa.sln` initialized with four source projects and four test projects  
 **Build:** PASS, Release, zero warnings  
-**Tests:** PASS — 6 Architecture Tests and 1 PostgreSQL Integration Test; Domain/Application suites contain no feature tests yet
+**Tests:** PASS — 6 Architecture Tests and 9 PostgreSQL integration/security tests. Domain/Application test projects contain no feature tests because this phase introduced no business slices.
 
 ---
 
@@ -91,7 +85,7 @@ No Phase 0 work remains. The next phase is Phase 1 — Identity and Multi-Tenanc
 
 ## 9. Known Issues
 
-The Domain and Application test projects currently contain no feature tests because Phase 0 has no business logic. The hosted GitHub Actions workflow has not yet been verified after Git was configured.
+The Domain and Application test projects currently contain no feature tests because Phase 0 and Phase 1 have no domain or application business slices. The hosted GitHub Actions workflow has not yet been verified after Git was configured.
 
 ---
 
@@ -103,7 +97,7 @@ None currently identified. Docker is installed and its server is reachable.
 
 ## 11. Decisions Made During Development
 
-Owner-approved scope decision on 2026-10-06: authentication and `TenantContext` remain in Phase 1. Document 02 section 86 clarifies that Phase 0 prepares for them without implementing them.
+Owner-approved scope decision on 2026-10-06: authentication and `TenantContext` remain in Phase 1. Document 02 section 86 clarifies that Phase 0 prepares for them without implementing them. Owner approved ASP.NET Core Identity with cookie sessions and one tenant per institutional account, with multiple accounts allowed per tenant.
 
 Architectural and product decisions already defined in the normative documentation must not be duplicated here.
 
@@ -113,19 +107,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized. On 2026-10-06, `git status --short --branch` reported a clean `main` branch tracking `origin/main`; remote `origin` is configured. No uncommitted changes were present at that check. Phase 0 is complete and validated.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 changes are present and uncommitted. No commit was created.
 
 ---
 
 ## 13. Next Recommended Task
 
-Wait for explicit authorization to begin Phase 1 — Identity and Multi-Tenancy. Do not start Phase 1 automatically.
+After explicit authorization, begin Phase 2 — School and Academic, following its scope and Gate in `docs/03-Zelloa-Development-Plan.md`.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 0 implementation was authorized on 2026-10-05. On 2026-10-06, the owner approved keeping authentication and `TenantContext` in Phase 1, and Document 02 section 86 was updated. The `FoundationBaseline` migration was generated and applied. Release build completed with zero warnings. Architecture Tests (6), the PostgreSQL Testcontainers integration test (1), frontend lint for six projects, frontend tests (8), and both production builds passed. Docker Compose built and ran PostgreSQL, API, Family, and School; `/health`, OpenAPI, both app roots, PWA manifest, icon, and service worker returned HTTP 200 where applicable. Containers and Docker Desktop were stopped after validation; the local database volume remains. The GitHub workflow's commands were executed locally; no hosted run was verified at Phase 0 completion. The owner subsequently configured Git. On 2026-10-06, the repository was verified clean on `main` tracking `origin/main`, with remote `origin` configured. The Phase 0 Gate is achieved. Do not start Phase 1 without explicit owner authorization.
+Phase 1 was authorized on 2026-10-06. The owner approved ASP.NET Core Identity with secure cookie sessions and one tenant per institutional account, allowing multiple accounts per tenant. The clarification preserves Product Specification section 10, which allows multiple guardians per student. Authentication, CSRF protection, role policies, `/api/me`, tenant context from the authenticated identity, tenant query filtering, PlatformAdmin bootstrap, and the one-to-many account-to-tenant relation are implemented. Migrations `IdentityAndTenantFoundation` and `AllowMultipleAccountsPerTenant` were applied successfully in PostgreSQL Testcontainers. Release build completed with zero warnings. Architecture Tests (6) and Integration Tests (9) passed. The CORS test confirms only configured origins receive credentialed CORS headers. The full solution build/test command succeeded; Domain and Application test projects currently contain no tests. GitHub hosted workflow status has not been verified. Phase 1 Gate requirements are met. No Phase 2 work has started.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 

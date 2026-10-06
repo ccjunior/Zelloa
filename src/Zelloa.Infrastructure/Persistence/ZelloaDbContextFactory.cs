@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Zelloa.Application.Identity;
 
 namespace Zelloa.Infrastructure.Persistence;
 
@@ -13,6 +14,11 @@ public sealed class ZelloaDbContextFactory : IDesignTimeDbContextFactory<ZelloaD
                 ?? "Host=localhost;Port=5432;Database=zelloa;Username=zelloa;Password=zelloa-local")
             .Options;
 
-        return new ZelloaDbContext(options);
+        return new ZelloaDbContext(options, new DesignTimeTenantContext());
+    }
+
+    private sealed class DesignTimeTenantContext : ITenantContext
+    {
+        public Guid TenantId => Guid.Empty;
     }
 }

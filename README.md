@@ -1,6 +1,6 @@
 # Zelloa
 
-Zelloa is a multi-institution school services platform. The current implementation phase is **Phase 0 — Foundation**. Business features, authentication, and tenant context are not implemented in this phase.
+Zelloa is a multi-institution school services platform. The current implementation phase is **Phase 1 — Identity and Multi-Tenancy**. School and academic business features remain for later phases.
 
 ## Local requirements
 
@@ -16,8 +16,10 @@ From the project root:
 docker compose build api
 docker compose build family
 docker compose build school
-docker compose up -d
+docker compose up -d postgres
 ```
+
+After PostgreSQL starts, apply migrations before starting the API. Set bootstrap credentials through a secret manager before starting the API if this is the first environment setup.
 
 Services:
 
@@ -27,12 +29,21 @@ Services:
 - Zelloa School: <http://localhost:8082>
 - PostgreSQL: `localhost:5432`, database `zelloa`, user `zelloa`
 
-Apply the empty foundation migration once after PostgreSQL starts:
+Apply the database migrations after PostgreSQL starts:
 
 ```powershell
 dotnet tool restore
 dotnet tool run dotnet-ef database update --project src/Zelloa.Infrastructure/Zelloa.Infrastructure.csproj --startup-project src/Zelloa.Api/Zelloa.Api.csproj
+docker compose up -d api family school
 ```
+
+## Authentication
+
+The API uses ASP.NET Core Identity with an authenticated cookie session. Before a login request, call `GET /api/auth/csrf` and send its `requestToken` in the `X-XSRF-TOKEN` header to `POST /api/auth/login`. The login body contains `email` and `password`. After login, call `GET /api/me` to read the authenticated user, roles, and tenant. Call `GET /api/auth/csrf` again before `POST /api/auth/logout`.
+
+There is no public account-registration endpoint. The first `PlatformAdmin` can be bootstrapped once by setting `IdentityBootstrap__PlatformAdmin__Email` and `IdentityBootstrap__PlatformAdmin__Password` through a secret manager after applying migrations. Do not put these values in `appsettings.json` or commit them. Remove the bootstrap secret settings after the account is created. `PlatformAdmin` is global; each institutional account belongs to one tenant, and each tenant may have multiple accounts.
+
+Development CORS origins are limited to the local Family and School app ports. Configure production origins explicitly through `Cors__AllowedOrigins__0` and additional indexed values as needed.
 
 Local database credentials are development-only values defined in `docker-compose.yml` and `appsettings.json`. Replace them through environment-specific secret configuration before any shared or production deployment.
 

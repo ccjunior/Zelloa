@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
+using Zelloa.Application.Identity;
 using Zelloa.Infrastructure.Persistence;
 
 namespace Zelloa.IntegrationTests;
@@ -16,8 +17,13 @@ public sealed class PostgreSqlContainerTests
             .UseNpgsql(postgres.GetConnectionString())
             .Options;
 
-        await using var dbContext = new ZelloaDbContext(options);
+        await using var dbContext = new ZelloaDbContext(options, new TestTenantContext());
 
         Assert.True(await dbContext.Database.CanConnectAsync());
+    }
+
+    private sealed class TestTenantContext : ITenantContext
+    {
+        public Guid TenantId => Guid.NewGuid();
     }
 }

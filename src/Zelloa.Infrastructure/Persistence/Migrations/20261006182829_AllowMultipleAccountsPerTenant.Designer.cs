@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Zelloa.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Zelloa.Infrastructure.Persistence;
 namespace Zelloa.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ZelloaDbContext))]
-    partial class ZelloaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006182829_AllowMultipleAccountsPerTenant")]
+    partial class AllowMultipleAccountsPerTenant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
