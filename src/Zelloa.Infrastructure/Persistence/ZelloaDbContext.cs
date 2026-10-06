@@ -7,6 +7,7 @@ using Zelloa.Domain.Guardians;
 using Zelloa.Domain.Invitations;
 using Zelloa.Domain.Schools;
 using Zelloa.Domain.Tenants;
+using Zelloa.Domain.Orders;
 using Zelloa.Infrastructure.Identity;
 
 namespace Zelloa.Infrastructure.Persistence;
@@ -27,6 +28,8 @@ public sealed class ZelloaDbContext(
     public DbSet<Guardian> Guardians => Set<Guardian>();
     public DbSet<GuardianStudent> GuardianStudents => Set<GuardianStudent>();
     public DbSet<AccountInvitation> AccountInvitations => Set<AccountInvitation>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderCutoff> OrderCutoffs => Set<OrderCutoff>();
 
     public Guid CurrentTenantId => _tenantContext.TenantId;
 
@@ -164,6 +167,59 @@ public sealed class ZelloaDbContext(
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<ZelloaUser>().WithMany().HasForeignKey(invitation => invitation.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OrderCutoff>(entity =>
+        {
+            entity.ToTable("OrderCutoffs");
+            entity.HasKey(cutoff => cutoff.Id);
+            entity.Property(cutoff => cutoff.Shift).HasMaxLength(50).IsRequired();
+            entity.Property(cutoff => cutoff.ShiftKey).HasMaxLength(50).IsRequired();
+            entity.Property(cutoff => cutoff.CutoffTime).HasColumnType("time without time zone");
+            entity.HasIndex(cutoff => new { cutoff.TenantId, cutoff.ShiftKey }).IsUnique();
+            entity.HasQueryFilter(cutoff => cutoff.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(cutoff => cutoff.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.ToTable("Orders");
+            entity.HasKey(order => order.Id);
+            entity.HasAlternateKey(order => new { order.TenantId, order.Id });
+            entity.Property(order => order.ClassroomName).HasMaxLength(200).IsRequired();
+            entity.Property(order => order.Shift).HasMaxLength(50).IsRequired();
+            entity.Property(order => order.Status).HasConversion<string>().HasMaxLength(32).IsRequired();
+            entity.Property(order => order.CreatedAt).IsRequired();
+            entity.HasIndex(order => new { order.TenantId, order.GuardianId, order.CreatedAt });
+            entity.HasQueryFilter(order => order.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(order => order.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Guardian>().WithMany()
+                .HasForeignKey(order => new { order.TenantId, order.GuardianId })
+                .HasPrincipalKey(guardian => new { guardian.TenantId, guardian.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Student>().WithMany()
+                .HasForeignKey(order => new { order.TenantId, order.StudentId })
+                .HasPrincipalKey(student => new { student.TenantId, student.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Classroom>().WithMany()
+                .HasForeignKey(order => new { order.TenantId, order.ClassroomId })
+                .HasPrincipalKey(classroom => new { classroom.TenantId, classroom.Id })
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasMany(order => order.Items).WithOne().HasForeignKey(item => item.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.Navigation(order => order.Items).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.ToTable("OrderItems", table =>
+                table.HasCheckConstraint("CK_OrderItems_Quantity", "\"Quantity\" > 0"));
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.ProductName).HasMaxLength(200).IsRequired();
+            entity.Property(item => item.UnitPrice).HasPrecision(18, 2);
+            entity.Property(item => item.Subtotal).HasPrecision(18, 2);
         });
 
         modelBuilder.Entity<IdentityRole<Guid>>().HasData(

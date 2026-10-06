@@ -740,7 +740,7 @@ Nunca copiar cegamente valores históricos.
 
 # 44. Horário Limite
 
-Implementar regra mínima de cutoff.
+Implementar limite de pedido configurável pelo SchoolAdmin para cada turno, sem data de entrega informada pelo responsável. O turno é derivado da turma atual do aluno; a data operacional é o dia local corrente da escola. Rejeitar a criação se o turno não possuir limite configurado ou se o horário local tiver passado do limite.
 
 Utilizar:
 
@@ -764,6 +764,7 @@ Obrigatórios:
 - tenant incorreto;
 - quantidade inválida;
 - cutoff expirado;
+- cutoff não configurado;
 - snapshot;
 - repetição com preço alterado.
 

@@ -1105,6 +1105,29 @@ Request:
 }
 ```
 
+O responsável não envia uma data de entrega. A data operacional é definida pelo servidor como a data local corrente da instituição. O turno é derivado da turma do aluno.
+
+Antes de criar o pedido, a API verifica o limite configurado pela escola para aquele turno. Se não houver configuração, responder `409 OrderCutoffNotConfigured`; se o limite tiver passado no timezone institucional, responder `409 OrderCutoffPassed`.
+
+### Configurar limites por turno
+
+```text
+GET /api/school/order-cutoffs
+PUT /api/school/order-cutoffs/{shift}
+```
+
+Autorização: `SchoolAdmin` do tenant atual. O `{shift}` deve corresponder ao rótulo de turno utilizado nas turmas (ignorando espaços externos e diferenças entre maiúsculas/minúsculas).
+
+Request do `PUT`:
+
+```json
+{
+  "cutoffTime": "08:30"
+}
+```
+
+O valor é uma hora local da escola no formato `HH:mm`, sem offset. Uma configuração é obrigatória para cada turno antes de aceitar pedidos desse turno.
+
 ---
 
 # 55. O Frontend Não Envia Preço

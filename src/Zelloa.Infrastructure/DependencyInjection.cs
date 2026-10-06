@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Zelloa.Application.Catalog;
 using Zelloa.Infrastructure.Persistence;
 using Zelloa.Application.SchoolAcademic;
+using Zelloa.Application.Orders;
 
 namespace Zelloa.Infrastructure;
 
@@ -19,6 +20,7 @@ public static class DependencyInjection
         services.AddDbContext<ZelloaDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<ICatalogStore, CatalogStore>();
         services.AddScoped<ISchoolAcademicStore, SchoolAcademicStore>();
+        services.AddScoped<IOrderStore, OrderStore>();
 
         return services;
     }

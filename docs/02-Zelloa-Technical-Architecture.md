@@ -1499,6 +1499,8 @@ Instantes deverão ser persistidos consistentemente.
 
 Cada escola deverá possuir timezone.
 
+O limite de pedidos deverá ser configurado por turno no tenant. Como `Classroom.Shift` permanece um texto administrável pela escola, a configuração armazena o mesmo rótulo de turno após trim e comparação sem distinção entre maiúsculas e minúsculas. O pedido deriva o turno da turma atual do aluno, atribui a data operacional usando o dia local da escola e valida o instante com `TimeProvider`. Limite ausente ou já ultrapassado impede a criação.
+
 Evitar:
 
 ```csharp
