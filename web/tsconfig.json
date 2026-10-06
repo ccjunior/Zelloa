@@ -1,0 +1,68 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "paths": {
+      "api-client": ["./dist/api-client"],
+      "authentication": ["./dist/authentication"],
+      "shared-ui": ["./dist/shared-ui"],
+      "utilities": ["./dist/utilities"]
+    },
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/zelloa-family/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/zelloa-family/tsconfig.spec.json"
+    },
+    {
+      "path": "./apps/zelloa-school/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/zelloa-school/tsconfig.spec.json"
+    },
+    {
+      "path": "./libs/api-client/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/api-client/tsconfig.spec.json"
+    },
+    {
+      "path": "./libs/authentication/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/authentication/tsconfig.spec.json"
+    },
+    {
+      "path": "./libs/shared-ui/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/shared-ui/tsconfig.spec.json"
+    },
+    {
+      "path": "./libs/utilities/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/utilities/tsconfig.spec.json"
+    }
+  ]
+}
+

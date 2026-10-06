@@ -1,0 +1,323 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "libs",
+  "projects": {
+    "zelloa-family": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "apps/zelloa-family",
+      "sourceRoot": "apps/zelloa-family/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "apps/zelloa-family/src/main.ts",
+            "tsConfig": "apps/zelloa-family/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "apps/zelloa-family/public"
+              }
+            ],
+            "styles": [
+              "apps/zelloa-family/src/styles.scss"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "serviceWorker": "apps/zelloa-family/ngsw-config.json",
+              "fileReplacements": [
+                {
+                  "with": "apps/zelloa-family/src/environments/environment.production.ts",
+                  "replace": "apps/zelloa-family/src/environments/environment.ts"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "zelloa-family:build:production"
+            },
+            "development": {
+              "buildTarget": "zelloa-family:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/zelloa-family/**/*.ts",
+              "apps/zelloa-family/**/*.html"
+            ],
+            "eslintConfig": "apps/zelloa-family/eslint.config.js"
+          }
+        }
+      }
+    },
+    "zelloa-school": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "apps/zelloa-school",
+      "sourceRoot": "apps/zelloa-school/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "apps/zelloa-school/src/main.ts",
+            "tsConfig": "apps/zelloa-school/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "apps/zelloa-school/public"
+              }
+            ],
+            "styles": [
+              "apps/zelloa-school/src/styles.scss"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "with": "apps/zelloa-school/src/environments/environment.production.ts",
+                  "replace": "apps/zelloa-school/src/environments/environment.ts"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "zelloa-school:build:production"
+            },
+            "development": {
+              "buildTarget": "zelloa-school:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/zelloa-school/**/*.ts",
+              "apps/zelloa-school/**/*.html"
+            ],
+            "eslintConfig": "apps/zelloa-school/eslint.config.js"
+          }
+        }
+      }
+    },
+    "api-client": {
+      "projectType": "library",
+      "root": "libs/api-client",
+      "sourceRoot": "libs/api-client/src",
+      "prefix": "zelloa",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/api-client/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/api-client/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/api-client/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/api-client/**/*.ts",
+              "libs/api-client/**/*.html"
+            ],
+            "eslintConfig": "libs/api-client/eslint.config.js"
+          }
+        }
+      }
+    },
+    "authentication": {
+      "projectType": "library",
+      "root": "libs/authentication",
+      "sourceRoot": "libs/authentication/src",
+      "prefix": "zelloa",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/authentication/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/authentication/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/authentication/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/authentication/**/*.ts",
+              "libs/authentication/**/*.html"
+            ],
+            "eslintConfig": "libs/authentication/eslint.config.js"
+          }
+        }
+      }
+    },
+    "shared-ui": {
+      "projectType": "library",
+      "root": "libs/shared-ui",
+      "sourceRoot": "libs/shared-ui/src",
+      "prefix": "zelloa",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/shared-ui/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/shared-ui/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/shared-ui/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/shared-ui/**/*.ts",
+              "libs/shared-ui/**/*.html"
+            ],
+            "eslintConfig": "libs/shared-ui/eslint.config.js"
+          }
+        }
+      }
+    },
+    "utilities": {
+      "projectType": "library",
+      "root": "libs/utilities",
+      "sourceRoot": "libs/utilities/src",
+      "prefix": "zelloa",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/utilities/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/utilities/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "libs/utilities/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/utilities/**/*.ts",
+              "libs/utilities/**/*.html"
+            ],
+            "eslintConfig": "libs/utilities/eslint.config.js"
+          }
+        }
+      }
+    }
+  }
+}

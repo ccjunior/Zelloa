@@ -1,0 +1,17 @@
+{
+  "name": "Zelloa | Família",
+  "short_name": "Zelloa Família",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "background_color": "#f5f8f6",
+  "theme_color": "#18312d",
+  "icons": [
+    {
+      "src": "icons/zelloa.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

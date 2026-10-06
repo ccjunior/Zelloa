@@ -1,0 +1,19 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /source
+
+COPY Directory.Build.props ./
+COPY src/Zelloa.Domain/Zelloa.Domain.csproj src/Zelloa.Domain/
+COPY src/Zelloa.Application/Zelloa.Application.csproj src/Zelloa.Application/
+COPY src/Zelloa.Infrastructure/Zelloa.Infrastructure.csproj src/Zelloa.Infrastructure/
+COPY src/Zelloa.Api/Zelloa.Api.csproj src/Zelloa.Api/
+RUN dotnet restore src/Zelloa.Api/Zelloa.Api.csproj
+
+COPY src/ src/
+RUN dotnet publish src/Zelloa.Api/Zelloa.Api.csproj --configuration Release --no-restore --output /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+ENV ASPNETCORE_HTTP_PORTS=8080
+EXPOSE 8080
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "Zelloa.Api.dll"]

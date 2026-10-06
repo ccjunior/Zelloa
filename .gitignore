@@ -1,0 +1,18 @@
+# .NET
+**/bin/
+**/obj/
+TestResults/
+.vs/
+*.user
+*.suo
+
+# Angular / npm
+web/node_modules/
+web/dist/
+web/.angular/
+web/coverage/
+npm-debug.log*
+
+# Local tooling
+.env
+.env.*.local

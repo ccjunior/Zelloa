@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: zelloa
+      POSTGRES_USER: zelloa
+      POSTGRES_PASSWORD: zelloa-local
+    ports:
+      - "5432:5432"
+    volumes:
+      - zelloa-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zelloa -d zelloa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__ZelloaDatabase: Host=postgres;Port=5432;Database=zelloa;Username=zelloa;Password=zelloa-local
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  family:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      args:
+        APP_NAME: zelloa-family
+    ports:
+      - "8081:80"
+    depends_on:
+      - api
+
+  school:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      args:
+        APP_NAME: zelloa-school
+    ports:
+      - "8082:80"
+    depends_on:
+      - api
+
+volumes:
+  zelloa-postgres-data:
