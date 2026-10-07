@@ -165,6 +165,10 @@ Zelloa Family
 Zelloa School
 → Angular
 → Desktop/Tablet-first
+
+Zelloa Admin
+→ Angular
+→ Desktop-first
 ```
 
 Infraestrutura:
@@ -537,11 +541,12 @@ Ownership
 
 # 24. FRONTEND
 
-Existem duas aplicações.
+Existem três aplicações.
 
 ```text
 zelloa-family
 zelloa-school
+zelloa-admin
 ```
 
 Não misture responsabilidades entre elas.
@@ -1237,9 +1242,10 @@ FASE 6  Webhooks + Reconciliation
 FASE 7  Cafeteria
 FASE 8  Zelloa Family
 FASE 9  Zelloa School
-FASE 10 Dashboard + Audit
-FASE 11 Hardening
-FASE 12 Pilot
+FASE 10 Zelloa Admin (PlatformAdmin)
+FASE 11 Dashboard + Audit
+FASE 12 Hardening
+FASE 13 Pilot
 ```
 
 ---

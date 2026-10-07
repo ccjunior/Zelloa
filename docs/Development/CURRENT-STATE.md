@@ -1,8 +1,8 @@
 # Zelloa — Current Development State
 
 **Last Updated:** 2026-10-07
-**Current Phase:** Phase 9 — Zelloa School (early registration scope)
-**Phase Status:** IN PROGRESS — owner-approved reordering for SchoolAdmin authentication and registration testing; Phases 5–8 remain incomplete/deferred
+**Current Phase:** Phase 10 — Zelloa Admin (PlatformAdmin)
+**Phase Status:** IN PROGRESS — owner-approved start before the Phase 9 Gate to provision institutions and invite SchoolAdmins; Phase 9 remains incomplete
 **Last Completed Phase:** Phase 4 — Ordering
 **Last Completed Gate:** Gate — Phase 4
 
@@ -10,7 +10,7 @@
 
 ## 1. Current Objective
 
-Phase 4 — Ordering is complete and committed as `261d1da`. Its Gate is met: a valid order can be created without real payment integration, with financial values calculated and validated by the backend. The owner has deferred the remaining work in Phase 5 and authorized an early start on the School frontend registration subset in Phase 9. This does not complete or waive Phases 5–8 or the Phase 9 Gate.
+Phase 4 — Ordering is complete and committed as `261d1da`. Its Gate is met: a valid order can be created without real payment integration, with financial values calculated and validated by the backend. The owner deferred real PSP selection/integration until after the school presentation. The owner authorized an early subset of Phase 9 for the School registration frontend, committed as `01003bd`, and then authorized Phase 10 to create the separate PlatformAdmin portal before the Phase 9 Gate. Phase 10 does not complete or waive the Phase 9 Gate or Phases 5–8.
 
 Phase 0 established the technical foundation; Phase 1 implemented authentication, authorization, and tenant context. Phase 2 completed school and academic records, guardian links, and invitations.
 
@@ -37,13 +37,13 @@ Available normative documentation:
 
 ## 3. Work In Progress
 
-Phase 3 is committed as `d3fc61b` (`feat: add tenant-scoped catalog management`). Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0` (`feat: implement school and academic phase`). Phase 4 is committed as `261d1da` (`feat: implement ordering phase`) and adds server-priced orders, item snapshots, unpaid-order cancellation, repeat-order revalidation, guardian order history, and SchoolAdmin-configured cutoffs by class shift. Phase 5 has a persisted development simulation behind `IPaymentGateway`, with owner-scoped create/query/confirm/expire operations and no real PSP calls. By owner decision, defer PSP selection and real payment integration until after the school presentation. No production payment provider has been integrated. Phase 9 has been authorized early for SchoolAdmin login/activation and academic-registration UI so the school can begin testing records. The initial frontend implementation is now in place; live registration against the API/database still needs a manual smoke test after the institution and SchoolAdmin account are provisioned.
+Phase 3 is committed as `d3fc61b` (`feat: add tenant-scoped catalog management`). Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0` (`feat: implement school and academic phase`). Phase 4 is committed as `261d1da` (`feat: implement ordering phase`) and adds server-priced orders, item snapshots, unpaid-order cancellation, repeat-order revalidation, guardian order history, and SchoolAdmin-configured cutoffs by class shift. Phase 5 has a persisted development simulation behind `IPaymentGateway`; real PSP selection/integration is deferred until after the school presentation. Phase 9's early SchoolAdmin login/activation and registration interface is committed as `01003bd`, but it has not yet been smoke-tested against a provisioned school. The owner approved a separate `zelloa-admin` Angular application as Phase 10 to create that institution and invite its initial SchoolAdmin.
 
 ---
 
 ## 4. Pending Work — Current Phase
 
-Authorized current scope: School frontend for SchoolAdmin login/account activation and registration testing for classrooms, students, guardian invitations, and guardian-student links, using existing tenant-scoped APIs. Implemented in this session: responsive admin shell/navigation, dashboard, login and activation screens, classroom and student forms/lists, guardian invitation with one-time activation URL display and link retry, plus route protection for the SchoolAdmin role. The development-only payment simulation remains available for demonstration. Phases 5–8 are not complete; the full Phase 9 Gate, including catalog, orders, and cafeteria operation, remains pending.
+Authorized current scope: Phase 10 — build `zelloa-admin` as a separate Angular application inside `web/`. Use existing authentication and school endpoints so `PlatformAdmin` can sign in, create a school and its tenant, and invite the first `SchoolAdmin`. Display the returned `TenantId` and one-time activation URL securely. Do not add school listing/editing until the API contract supports it. After the Phase 10 Gate, return to the unfinished Phase 9 School smoke test; the full Phase 9 Gate, including catalog, orders, and cafeteria operation, remains pending.
 
 ---
 
@@ -68,6 +68,7 @@ Authorized current scope: School frontend for SchoolAdmin login/account activati
 
 **Zelloa Family:** Initialized with routing, HTTP client, PWA, and base layout  
 **Zelloa School:** Early Phase 9 registration interface implemented: login/activation, protected admin shell, dashboard, classroom/student registration, and guardian invitation/link workflows. Development server: `npm start -- zelloa-school --port 4201` (matches the configured local invitation URL and API CORS origin). The Angular development environment targets the local .NET HTTP profile at port 5027; Docker Compose maps its API to port 8080.
+**Zelloa Admin:** Authorized as the next phase; Angular application not created yet. Planned local development port: `4202`.
 
 **School Lint:** PASS — `npm run ng -- lint zelloa-school`
 **School Tests:** PASS — 2 tests
@@ -85,7 +86,7 @@ Authorized current scope: School frontend for SchoolAdmin login/account activati
 
 ## 9. Known Issues
 
-The hosted GitHub Actions workflow has not yet been verified after Git was configured. A `PlatformAdmin` now exists in the local database, but there is no school or `SchoolAdmin`. Use the PlatformAdmin API endpoints to create a school and invite its first SchoolAdmin; the PlatformAdmin account cannot log in to the School panel. A browser capture showed login `204`, `/api/me` `200`, and logout `204`, confirming the role rejection. The login now reports that rejection without navigating away, and async screen state uses Angular signals so updates render in the zoneless app. Ensure `InvitationUrls__School` points to `/activate-invitation` on the School frontend (port 4201 locally). Guardian invitation URLs are returned once for manual delivery and must not be published or logged. The School UI has not yet been manually smoke-tested against a SchoolAdmin account.
+The hosted GitHub Actions workflow has not yet been verified after Git was configured. A `PlatformAdmin` exists in the local database, but there is no school or `SchoolAdmin`. The account must use the new Admin portal; it cannot log in to the School panel. A browser capture showed login `204`, `/api/me` `200`, and logout `204`, confirming the School role rejection. The School UI has not yet been manually smoke-tested against a SchoolAdmin account. Invitation URLs are returned once for manual delivery and must not be published or logged.
 
 ### Technical Debt
 
@@ -102,7 +103,7 @@ Phase 5 remains deferred until after the school presentation/provider discussion
 
 ## 11. Decisions Made During Development
 
-Owner-approved decisions: ASP.NET Core Identity with cookie sessions; one tenant per institutional account, with multiple accounts per tenant; school owns student registration and initiates guardian access; guardian context selection across schools is future scope; PlatformAdmin invites the initial SchoolAdmin, and SchoolAdmin invites Guardians via manually delivered, single-use activation links expiring after 24 hours; product image uploads/storage remain open as technical debt TD-001, with optional HTTPS URLs supported for now; retain the development-only payment simulation for the school presentation and defer PSP selection/integration until the school identifies its preferred provider; start the Phase 9 SchoolAdmin authentication/registration subset early for school data-entry testing; remove the application simulation after real PSP homologation under TD-002. Guardians do not select a delivery date, and order cutoffs are configured per class shift by the school.
+Owner-approved decisions: ASP.NET Core Identity with cookie sessions; one tenant per institutional account, with multiple accounts per tenant; school owns student registration and initiates guardian access; guardian context selection across schools is future scope; PlatformAdmin invites the initial SchoolAdmin, and SchoolAdmin invites Guardians via manually delivered, single-use activation links expiring after 24 hours; a separate Angular `zelloa-admin` application provides the PlatformAdmin interface; begin Phase 10 before the full Phase 9 Gate to provision the school required for testing; product image uploads/storage remain open as TD-001; retain the development payment simulation for presentation and defer PSP selection until the school identifies its preferred provider; remove the application simulation after real PSP homologation under TD-002. Guardians do not select a delivery date, and order cutoffs are configured per class shift by the school.
 
 Architectural and product decisions already defined in the normative documentation must not be duplicated here.
 
@@ -112,19 +113,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation is committed as `8db6093`; presentation and PSP-selection sequencing is documented in `f791486`. Phase 9 frontend/docs changes are being committed separately from pre-existing local configuration changes in `src/Zelloa.Api/Zelloa.Api.csproj`, `src/Zelloa.Api/appsettings.Development.json`, and `web/angular.json`. All seven migrations, including the development payment migration, are applied locally. No tests were run after the Phase 5 backend implementation.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 9's early School frontend and documentation subset is committed as `01003bd`. Existing local configuration changes in `src/Zelloa.Api/Zelloa.Api.csproj`, `src/Zelloa.Api/appsettings.Development.json`, and `web/angular.json` are preserved and uncommitted. The new Phase 10 scope is documented; the `zelloa-admin` project is not yet implemented. All seven migrations, including the development payment migration, are applied locally.
 
 ---
 
 ## 13. Next Recommended Task
 
-Use the existing local PlatformAdmin credentials to create a school and invite its first SchoolAdmin through the API. Activate the invitation and manually smoke-test SchoolAdmin login, classroom/student registration, guardian invitation, and guardian-student linking against the running API/database. Capture integration/API issues before expanding this early Phase 9 scope. Preserve tenant isolation and antiforgery protections. Defer catalog, orders, and cafeteria screens until their planned dependencies are available; do not mark Phases 5–8 or the Phase 9 Gate complete.
+Implement the Phase 10 `zelloa-admin` Angular project, then validate PlatformAdmin login, school/tenant creation, invitation of the initial SchoolAdmin, and account activation. Preserve cookie authentication, antiforgery protections, and existing tenant ownership. After the Phase 10 Gate, return to the Phase 9 manual School registration smoke test; do not mark the Phase 9 Gate or Phases 5–8 complete.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`; presentation and PSP-selection sequence as `f791486`. Phase 3 provides tenant-scoped catalog and records deferred image upload/managed storage as TD-001. Phase 4 reached its Gate with order creation, server-side price calculation, snapshots, unpaid cancellation, repeat revalidation, guardian history, per-shift school-local cutoffs, and the OrderingFoundation migration. Phase 5 development simulation is available only in `Development`; real PSP selection/integration is deferred. The owner authorized an early Phase 9 subset for SchoolAdmin authentication and registration testing. The responsive School UI is implemented and its production build, School lint, and two School unit tests pass. All migrations are applied locally; one PlatformAdmin exists, but there is no school or SchoolAdmin yet. Next, create a school and invite the SchoolAdmin via the API, then run manual API-backed registration smoke tests. This does not mark Phases 5–8 or the Phase 9 Gate complete; defer school catalog, orders, and cafeteria operation until their dependencies are satisfied.
+Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`; presentation and PSP-selection sequence as `f791486`; early Phase 9 School UI as `01003bd`. School workspace tests, lint, and Family/School production builds passed before that commit. A direct database role change was reverted to `PlatformAdmin`; the local API starts and `/health` returns 200. The owner then approved Phase 10 and a dedicated `zelloa-admin` Angular application before the full Phase 9 Gate. Implement Phase 10 first, then resume School API-backed registration testing; Phase 9 and Phases 5–8 are not complete.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 

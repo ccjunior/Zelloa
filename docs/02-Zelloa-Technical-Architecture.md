@@ -1,7 +1,7 @@
 # Zelloa — Technical Architecture
 
 **Documento:** 02-Zelloa-Technical-Architecture  
-**Versão:** 1.2  
+**Versão:** 1.3
 **Status:** Arquitetura aprovada para o MVP  
 **Produto:** Zelloa  
 **Backend:** .NET 10 / ASP.NET Core  
@@ -9,7 +9,7 @@
 **Banco de Dados:** PostgreSQL  
 **Arquitetura:** Clean Architecture + Vertical Slice Architecture  
 **Modelo de Deployment:** Modular Monolith  
-**Aplicações Frontend:** Zelloa Family + Zelloa School
+**Aplicações Frontend:** Zelloa Family + Zelloa School + Zelloa Admin
 
 ---
 
@@ -61,7 +61,7 @@ Não serão utilizados microservices no MVP.
 
 # 3. Aplicações da Plataforma
 
-A plataforma será composta inicialmente por três aplicações principais.
+A plataforma será composta pela API e três aplicações frontend.
 
 ## 3.1 Zelloa API
 
@@ -212,7 +212,7 @@ Principais funcionalidades:
 
 # 7. Separação dos Frontends
 
-Zelloa Family e Zelloa School serão aplicações distintas.
+Zelloa Family, Zelloa School e Zelloa Admin serão aplicações distintas no mesmo workspace Angular.
 
 Não utilizar:
 
@@ -304,29 +304,24 @@ zelloa-school
 
 ---
 
-# 10. Backoffice Zelloa
+# 10. Zelloa Admin
 
-No futuro poderá existir uma terceira aplicação:
+Aplicação destinada ao perfil interno `PlatformAdmin`.
 
 ```text
-Zelloa Backoffice
+Zelloa Admin
 ```
 
-destinada à administração interna da plataforma.
+Na Fase 10, permitirá autenticar o administrador da plataforma, criar uma instituição e seu tenant e convidar o primeiro administrador escolar.
 
-Possíveis responsabilidades:
+Funcionalidades futuras poderão incluir:
 
-- tenants;
 - suporte;
 - integrações;
 - monitoramento;
 - configuração de clientes.
 
-Essa aplicação está:
-
-> FORA DO ESCOPO DO MVP.
-
-Não deverá ser criada antecipadamente.
+Suporte, integrações, monitoramento e configuração avançada continuam fora do escopo desta etapa.
 
 ---
 
@@ -362,6 +357,13 @@ Não deverá ser criada antecipadamente.
              │    Zelloa School    │
              │       Angular       │
              └─────────────────────┘
+
+             ┌─────────────────────┐
+             │    Zelloa Admin     │
+             │       Angular       │
+             └──────────┬──────────┘
+                        │ HTTPS
+                        └──────────────► Zelloa API
 ```
 
 ---
@@ -386,7 +388,8 @@ Zelloa/
 ├── web/
 │   ├── apps/
 │   │   ├── zelloa-family/
-│   │   └── zelloa-school/
+│   │   ├── zelloa-school/
+│   │   └── zelloa-admin/
 │   │
 │   └── libs/
 │       ├── api-client/
@@ -938,11 +941,14 @@ SchoolAdmin
 CafeteriaOperator
    ↓
 Zelloa School
+
+PlatformAdmin
+   ↓
+Zelloa Admin
 ```
 
 `PlatformAdmin` será reservado para administração interna.
-
-Não haverá frontend próprio para esse perfil no MVP.
+O perfil terá uma aplicação Angular própria dentro do workspace `web/`, separada dos portais Family e School. O portal Admin utilizará a sessão por cookie e os endpoints existentes de autenticação, criação de escola/tenant e convite do administrador escolar.
 
 ## Estratégia de autenticação
 
@@ -1404,6 +1410,19 @@ zelloa-school/
         └── shared/
 ```
 
+Zelloa Admin:
+
+```text
+zelloa-admin/
+└── src/
+    └── app/
+        ├── core/
+        ├── features/
+        │   ├── auth/
+        │   └── institutions/
+        └── shared/
+```
+
 ---
 
 # 54. Estado no Frontend
@@ -1422,7 +1441,7 @@ Uma solução global de state management somente deverá ser introduzida se a co
 
 # 55. API Client
 
-Os dois frontends deverão utilizar contratos consistentes com a API.
+Os frontends deverão utilizar contratos consistentes com a API.
 
 Preferência por geração de client a partir do OpenAPI quando a solução estiver estabilizada.
 
@@ -1728,6 +1747,7 @@ PostgreSQL
 Zelloa API
 Zelloa Family
 Zelloa School
+Zelloa Admin
 ```
 
 via Docker/Docker Compose quando apropriado.
@@ -1758,6 +1778,7 @@ Test
 Type Check
 Build Zelloa Family
 Build Zelloa School
+Build Zelloa Admin
 ```
 
 Falhas obrigatórias deverão impedir promoção.
@@ -2134,7 +2155,7 @@ A fundação arquitetural será considerada pronta quando:
 - Zelloa Family estiver configurado como PWA;
 - Zelloa School estiver criado;
 - bibliotecas compartilhadas estiverem delimitadas;
-- ambos os frontends compilarem;
+- Family e School compilarem conforme o escopo da Fase 0;
 - ambiente local estiver reproduzível.
 
 Autenticação funcional, identificação do usuário, autorização e implementação do `TenantContext` pertencem à Fase 1, conforme o Plano de Desenvolvimento. A Fase 0 não deverá antecipar esses componentes; sua conclusão exige somente que a fundação permita implementá-los na fase prevista.

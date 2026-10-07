@@ -8,6 +8,7 @@
 **Backend:** .NET 10 / ASP.NET Core  
 **Frontend Family:** Angular PWA  
 **Frontend School:** Angular  
+**Frontend Admin:** Angular
 **Banco:** PostgreSQL
 
 ---
@@ -58,10 +59,13 @@ FASE 6  → Payment Webhooks + Reconciliation
 FASE 7  → Cafeteria Operations
 FASE 8  → Zelloa Family
 FASE 9  → Zelloa School
-FASE 10 → Dashboard + Audit
-FASE 11 → Hardening + Security
-FASE 12 → Pilot Deployment
+FASE 10 → Zelloa Admin (PlatformAdmin)
+FASE 11 → Dashboard + Audit
+FASE 12 → Hardening + Security
+FASE 13 → Pilot Deployment
 ```
+
+Por decisão do responsável, a Fase 10 será iniciada antes do Gate completo da Fase 9 para permitir o cadastro de instituições e o convite do primeiro administrador escolar. Isso não conclui nem dispensa o Gate da Fase 9; após a Fase 10, retomar a validação da interface School.
 
 Cada fase possui um **Gate**.
 
@@ -1311,15 +1315,53 @@ A escola deverá conseguir operar o fluxo sem acessar banco, Swagger ou ferramen
 
 ---
 
-# FASE 10 — DASHBOARD E AUDITORIA
+# FASE 10 — ZELLOA ADMIN (PLATFORM ADMIN)
 
 # 89. Objetivo
+
+Criar uma aplicação Angular própria para o perfil interno `PlatformAdmin`, dentro do workspace `web/` e separada dos projetos Family e School. O portal permitirá provisionar instituições sem acesso manual ao banco ou uso direto da API.
+
+### Início antecipado autorizado
+
+O responsável autorizou esta etapa para viabilizar o primeiro cadastro institucional e os testes escolares. A implementação deverá usar os endpoints existentes de Identity e School; não criar fluxo alternativo de cadastro nem alterar a autorização ou o modelo de tenant.
+
+---
+
+# 90. Autenticação e autorização
+
+Usar a sessão por cookie já emitida pela API, proteção antifalsificação nas operações mutáveis e uma rota protegida que aceite somente `PlatformAdmin`. Usuários de outros perfis não poderão acessar o portal administrativo.
+
+---
+
+# 91. Instituições e acesso escolar
+
+O portal deverá permitir:
+
+- autenticar o `PlatformAdmin`;
+- cadastrar nome, nome fantasia, identificador opcional, contato e timezone da instituição;
+- apresentar o resultado e o `TenantId` criado pela API;
+- convidar o administrador escolar inicial para uma instituição recém-cadastrada;
+- apresentar o link de ativação de uso único para entrega manual, sem registrá-lo em logs.
+
+A ativação da conta escolar continua no portal Zelloa School. A lista e edição de instituições ficam fora desta etapa enquanto não houver endpoints correspondentes definidos.
+
+---
+
+# 92. Gate — Fase 10
+
+O `PlatformAdmin` deverá conseguir entrar no portal, criar uma instituição e seu tenant, gerar o convite do `SchoolAdmin` inicial e copiar o link de ativação. O portal School deverá conseguir ativar essa conta. Outros perfis deverão ser impedidos de acessar as rotas administrativas. Build, lint e testes aplicáveis do novo projeto deverão passar.
+
+---
+
+# FASE 11 — DASHBOARD E AUDITORIA
+
+# 93. Objetivo
 
 Adicionar visibilidade operacional mínima.
 
 ---
 
-# 90. Dashboard
+# 94. Dashboard
 
 Indicadores:
 
@@ -1334,7 +1376,7 @@ Indicadores:
 
 ---
 
-# 91. Auditoria
+# 95. Auditoria
 
 Operações críticas deverão possuir trilha adequada.
 
@@ -1347,21 +1389,21 @@ Priorizar:
 
 ---
 
-# 92. Gate — Fase 10
+# 96. Gate — Fase 11
 
 Administração deverá conseguir acompanhar operação básica e investigar eventos relevantes.
 
 ---
 
-# FASE 11 — HARDENING E SECURITY
+# FASE 12 — HARDENING E SECURITY
 
-# 93. Objetivo
+# 97. Objetivo
 
 Preparar aplicação para piloto real.
 
 ---
 
-# 94. Revisão de Segurança
+# 98. Revisão de Segurança
 
 Validar:
 
@@ -1379,7 +1421,7 @@ Validar:
 
 ---
 
-# 95. LGPD
+# 99. LGPD
 
 Revisar:
 
@@ -1394,7 +1436,7 @@ Remover dados não necessários.
 
 ---
 
-# 96. Performance
+# 100. Performance
 
 Executar testes nos fluxos críticos.
 
@@ -1404,7 +1446,7 @@ Investigar apenas gargalos medidos.
 
 ---
 
-# 97. Observabilidade
+# 101. Observabilidade
 
 Garantir:
 
@@ -1416,7 +1458,7 @@ Garantir:
 
 ---
 
-# 98. Teste Ponta a Ponta
+# 102. Teste Ponta a Ponta
 
 Executar cenário:
 
@@ -1444,21 +1486,21 @@ Guardian consulta histórico
 
 ---
 
-# 99. Gate — Fase 11
+# 103. Gate — Fase 12
 
 Nenhuma vulnerabilidade ou falha funcional crítica conhecida poderá permanecer aberta para início do piloto.
 
 ---
 
-# FASE 12 — PILOT DEPLOYMENT
+# FASE 13 — PILOT DEPLOYMENT
 
-# 100. Objetivo
+# 104. Objetivo
 
 Publicar ambiente utilizável por uma instituição piloto.
 
 ---
 
-# 101. Ambientes
+# 105. Ambientes
 
 Manter separação mínima:
 
@@ -1470,7 +1512,7 @@ Production
 
 ---
 
-# 102. Deployment
+# 106. Deployment
 
 Publicar:
 
@@ -1478,6 +1520,7 @@ Publicar:
 Zelloa API
 Zelloa Family
 Zelloa School
+Zelloa Admin
 PostgreSQL
 ```
 
@@ -1493,13 +1536,14 @@ Configurar:
 
 ---
 
-# 103. Domínios
+# 107. Domínios
 
 Sugestão conceitual:
 
 ```text
 app.zelloa.com.br
 school.zelloa.com.br
+admin.zelloa.com.br
 api.zelloa.com.br
 ```
 
@@ -1507,7 +1551,7 @@ A configuração definitiva será tomada durante deployment.
 
 ---
 
-# 104. Banco
+# 108. Banco
 
 Produção deverá possuir:
 
@@ -1519,7 +1563,7 @@ Produção deverá possuir:
 
 ---
 
-# 105. PSP Produção
+# 109. PSP Produção
 
 Antes de ativar:
 
@@ -1532,7 +1576,7 @@ Antes de ativar:
 
 ---
 
-# 106. Smoke Test
+# 110. Smoke Test
 
 Após deployment executar:
 
@@ -1550,7 +1594,7 @@ History
 
 ---
 
-# 107. Gate — Fase 12
+# 111. Gate — Fase 13
 
 Piloto somente inicia após:
 
@@ -1565,7 +1609,7 @@ Piloto somente inicia após:
 
 ---
 
-# 108. Fluxo Completo das Fases
+# 112. Fluxo Completo das Fases
 
 ```text
 ┌──────────────────────────┐
@@ -1609,21 +1653,25 @@ Piloto somente inicia após:
 └────────────┬─────────────┘
              ▼
 ┌──────────────────────────┐
-│ 10. Dashboard/Audit      │
+│ 10. Zelloa Admin         │
 └────────────┬─────────────┘
              ▼
 ┌──────────────────────────┐
-│ 11. Hardening            │
+│ 11. Dashboard/Audit      │
 └────────────┬─────────────┘
              ▼
 ┌──────────────────────────┐
-│ 12. Pilot                │
+│ 12. Hardening            │
+└────────────┬─────────────┘
+             ▼
+┌──────────────────────────┐
+│ 13. Pilot                │
 └──────────────────────────┘
 ```
 
 ---
 
-# 109. Regra de Checkpoint
+# 113. Regra de Checkpoint
 
 Após cada fase, o agente deverá apresentar:
 
@@ -1665,7 +1713,7 @@ O agente não deverá iniciar automaticamente a próxima fase.
 
 ---
 
-# 110. Regra para Código Existente
+# 114. Regra para Código Existente
 
 Antes de criar uma implementação, verificar se já existe solução equivalente.
 
@@ -1679,7 +1727,7 @@ Evitar:
 
 ---
 
-# 111. Regra para Refactoring
+# 115. Regra para Refactoring
 
 Refactoring é permitido quando necessário para implementar corretamente a fase atual.
 
@@ -1689,7 +1737,7 @@ Não realizar "cleanup geral" durante implementação de uma feature específica
 
 ---
 
-# 112. Regra para TODOs
+# 116. Regra para TODOs
 
 Não utilizar TODO como mecanismo para considerar uma funcionalidade concluída.
 
@@ -1701,7 +1749,7 @@ TODOs para funcionalidades futuras poderão existir apenas quando claramente for
 
 ---
 
-# 113. Regra para Testes
+# 117. Regra para Testes
 
 Não remover ou desabilitar testes apenas para permitir que pipeline passe.
 
@@ -1717,7 +1765,7 @@ para esconder regressões sem justificativa explícita.
 
 ---
 
-# 114. Regra para Migrations
+# 118. Regra para Migrations
 
 Antes de concluir fase com alteração de persistência:
 
@@ -1728,7 +1776,7 @@ Antes de concluir fase com alteração de persistência:
 
 ---
 
-# 115. Regra para Dependências
+# 119. Regra para Dependências
 
 Antes de adicionar pacote externo:
 
@@ -1739,7 +1787,7 @@ Antes de adicionar pacote externo:
 
 ---
 
-# 116. Regra para Segurança
+# 120. Regra para Segurança
 
 Nunca:
 
@@ -1753,7 +1801,7 @@ Nunca:
 
 ---
 
-# 117. Regra para Pagamentos
+# 121. Regra para Pagamentos
 
 Toda alteração financeira deverá ser:
 
@@ -1766,7 +1814,7 @@ Toda alteração financeira deverá ser:
 
 ---
 
-# 118. Regra para PWA
+# 122. Regra para PWA
 
 O PWA deverá melhorar a experiência.
 
@@ -1778,7 +1826,7 @@ Em dúvida:
 
 ---
 
-# 119. Regra de Simplicidade
+# 123. Regra de Simplicidade
 
 Quando existirem duas soluções tecnicamente corretas, preferir a que:
 
@@ -1790,7 +1838,7 @@ Quando existirem duas soluções tecnicamente corretas, preferir a que:
 
 ---
 
-# 120. Definition of Done Global
+# 124. Definition of Done Global
 
 O MVP da Zelloa será considerado concluído quando:
 
@@ -1811,7 +1859,7 @@ O MVP da Zelloa será considerado concluído quando:
 
 ---
 
-# 121. Princípio Final
+# 125. Princípio Final
 
 A prioridade da Zelloa não é quantidade de funcionalidades.
 
