@@ -1,0 +1,5 @@
+* { box-sizing: border-box; }
+html, body { min-height: 100%; margin: 0; }
+body { color: #173c34; background: #f3f7f5; font-family: Inter, "Segoe UI", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #80b39d; outline-offset: 3px; }

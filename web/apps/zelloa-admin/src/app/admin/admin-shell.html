@@ -1,0 +1,25 @@
+<div class="admin-layout">
+  @if (menuOpen) { <button class="backdrop" type="button" aria-label="Fechar menu" (click)="closeMenu()"></button> }
+  <aside class="sidebar" [class.open]="menuOpen">
+    <a class="brand" routerLink="/" (click)="closeMenu()"><span class="brand-mark">z</span><span>zelloa <small>admin</small></span></a>
+    <p class="sidebar-label">PLATAFORMA</p>
+    <nav aria-label="Navegação principal">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">
+        <span class="nav-icon">▧</span> Cadastrar instituição
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-avatar">{{ auth.user()?.displayName?.charAt(0) ?? 'Z' }}</div>
+      <div class="user-copy"><strong>{{ auth.user()?.displayName ?? 'Administração' }}</strong><span>PlatformAdmin</span></div>
+      <button type="button" class="logout" aria-label="Sair" title="Sair" (click)="logout()">↗</button>
+    </div>
+  </aside>
+  <section class="workspace">
+    <header class="topbar">
+      <button type="button" class="menu-toggle" aria-label="Abrir menu" (click)="menuOpen = true">☰</button>
+      <div class="breadcrumb">Zelloa <span>/</span> Administração</div>
+      <div class="top-status"><span></span> Acesso interno</div>
+    </header>
+    <main class="page-content"><router-outlet /></main>
+  </section>
+</div>

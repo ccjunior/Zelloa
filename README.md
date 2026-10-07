@@ -1,6 +1,6 @@
 # Zelloa
 
-Zelloa is a multi-institution school services platform. The current implementation phase is **Phase 2 — School and Academic**. Each institutional account belongs to one school; a school may have multiple accounts.
+Zelloa is a multi-institution school services platform. The current work includes the School registration frontend and the **Phase 10 — Zelloa Admin** portal for platform administration. Each institutional account belongs to one school; a school may have multiple accounts.
 
 ## Local requirements
 
@@ -16,6 +16,7 @@ From the project root:
 docker compose build api
 docker compose build family
 docker compose build school
+docker compose build admin
 docker compose up -d postgres
 ```
 
@@ -27,6 +28,7 @@ Services:
 - API OpenAPI: <http://localhost:8080/openapi/v1.json>
 - Zelloa Family: <http://localhost:8081>
 - Zelloa School: <http://localhost:8082>
+- Zelloa Admin: <http://localhost:8083>
 - PostgreSQL: `localhost:5432`, database `zelloa`, user `zelloa`
 
 Apply the database migrations after PostgreSQL starts:
@@ -34,7 +36,7 @@ Apply the database migrations after PostgreSQL starts:
 ```powershell
 dotnet tool restore
 dotnet tool run dotnet-ef database update --project src/Zelloa.Infrastructure/Zelloa.Infrastructure.csproj --startup-project src/Zelloa.Api/Zelloa.Api.csproj
-docker compose up -d api family school
+docker compose up -d api family school admin
 ```
 
 ## Authentication
@@ -45,7 +47,7 @@ There is no public account-registration endpoint. The first `PlatformAdmin` can 
 
 `PlatformAdmin` creates a school and invites its initial `SchoolAdmin`. A `SchoolAdmin` creates guardian accounts and links guardians to students. Invitations are single-use activation links valid for 24 hours; delivery is manual in this phase. Configure `InvitationUrls__School` and `InvitationUrls__Family` to the corresponding frontend activation routes. Do not publish invitation links or store them in logs. Public self-registration and automated email delivery are not available.
 
-Development CORS origins are limited to the local Family and School app ports. Configure production origins explicitly through `Cors__AllowedOrigins__0` and additional indexed values as needed.
+Development CORS origins are limited to the local Family, School, and Admin app ports. Configure production origins explicitly through `Cors__AllowedOrigins__0` and additional indexed values as needed.
 
 Local database credentials are development-only values defined in `docker-compose.yml` and `appsettings.json`. Replace them through environment-specific secret configuration before any shared or production deployment.
 
@@ -82,10 +84,11 @@ npm test
 npm run build
 ```
 
-The two applications can also be built separately:
+The applications can also be built separately:
 
 ```powershell
 npx ng build zelloa-family --configuration production
 npx ng build zelloa-school --configuration production
+npx ng build zelloa-admin --configuration production
 ```
 # Zelloa

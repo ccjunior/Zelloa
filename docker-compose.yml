@@ -26,6 +26,7 @@ services:
       IdentityBootstrap__PlatformAdmin__Password: ${ZELLOA_BOOTSTRAP_ADMIN_PASSWORD:-}
       Cors__AllowedOrigins__0: ${ZELLOA_CORS_ALLOWED_ORIGIN_0:-http://localhost:8081}
       Cors__AllowedOrigins__1: ${ZELLOA_CORS_ALLOWED_ORIGIN_1:-http://localhost:8082}
+      Cors__AllowedOrigins__2: ${ZELLOA_CORS_ALLOWED_ORIGIN_2:-http://localhost:8083}
     ports:
       - "8080:8080"
     depends_on:
@@ -51,6 +52,17 @@ services:
         APP_NAME: zelloa-school
     ports:
       - "8082:80"
+    depends_on:
+      - api
+
+  admin:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      args:
+        APP_NAME: zelloa-admin
+    ports:
+      - "8083:80"
     depends_on:
       - api
 

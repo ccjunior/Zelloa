@@ -1,0 +1,14 @@
+<section class="form-card" aria-labelledby="invite-title">
+  <div class="card-heading"><div class="step-icon">02</div><div><h2 id="invite-title">Convide o administrador escolar</h2><p>O convite será usado para ativar uma conta própria da instituição.</p></div></div>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-grid">
+      <div class="field"><label for="admin-name">Nome completo <em>*</em></label><input id="admin-name" formControlName="displayName" placeholder="Nome do administrador" />
+        @if (form.controls.displayName.invalid && form.controls.displayName.touched) { <small class="field-error">Informe o nome.</small> }</div>
+      <div class="field"><label for="admin-email">E-mail de acesso <em>*</em></label><input id="admin-email" type="email" formControlName="email" placeholder="admin@escola.com.br" />
+        @if (form.controls.email.invalid && form.controls.email.touched) { <small class="field-error">Informe um e-mail válido.</small> }</div>
+    </div>
+    <div class="form-footer"><p><span>i</span> Use um e-mail diferente da conta PlatformAdmin.</p><button class="primary-button" type="submit" [disabled]="submitting() || form.invalid">
+      @if (submitting()) { <span class="spinner"></span> Gerando convite... } @else { Gerar convite <span>→</span> }
+    </button></div>
+  </form>
+</section>

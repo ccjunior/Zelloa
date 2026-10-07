@@ -1,0 +1,31 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">CADASTRO INSTITUCIONAL</p>
+    <h1>Prepare a chegada de uma escola.</h1>
+    <p class="lead">Cadastre a instituição, crie o tenant e convide quem administrará o espaço escolar.</p>
+  </div>
+  <div class="secure-badge"><span>✓</span> Acesso interno</div>
+</section>
+
+<div class="step-line" aria-label="Etapas do cadastro">
+  <div class="step" [class.current]="!school()" [class.complete]="school()"><span>1</span><div><strong>Instituição</strong><small>Dados e tenant</small></div></div>
+  <div class="step-connector" [class.complete]="school()"></div>
+  <div class="step" [class.current]="school() && !invitation()" [class.complete]="invitation()"><span>2</span><div><strong>Administrador</strong><small>Convite de acesso</small></div></div>
+</div>
+
+@if (errorMessage()) { <div class="notice error" role="alert"><span>!</span>{{ errorMessage() }}</div> }
+
+@if (!school()) {
+  <app-institution-details-form [submitting]="creatingSchool()" (submitted)="createSchool($event)" />
+} @else {
+  <section class="success-card" aria-live="polite">
+    <div class="success-icon">✓</div><div><p class="eyebrow">INSTITUIÇÃO CADASTRADA</p><h2>{{ school()?.name }}</h2><p>O tenant foi criado e vinculado à instituição.</p></div>
+    <div class="tenant-box"><span>Tenant ID</span><code>{{ school()?.tenantId }}</code></div>
+  </section>
+
+  @if (!invitation()) {
+    <app-administrator-invitation-form [submitting]="invitingAdministrator()" (submitted)="inviteAdministrator($event)" />
+  } @else {
+    <app-activation-invitation-card [invitation]="invitation()!" (startAnother)="startAnotherSchool()" />
+  }
+}

@@ -4,7 +4,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Development servers
 
-This Angular workspace contains two applications, so specify which project to serve. From the `web/` directory, start either application with:
+This Angular workspace contains three applications, so specify which project to serve. From the `web/` directory, start the application you need with:
 
 ```powershell
 npm start -- zelloa-family
@@ -14,7 +14,11 @@ npm start -- zelloa-family
 npm start -- zelloa-school --port 4201
 ```
 
-Family uses port `4200` by default. Run School on port `4201` to match the configured invitation activation URL and local API CORS origin. To run both applications at the same time, use separate terminals:
+```powershell
+npm start -- zelloa-admin --port 4202
+```
+
+Family uses port `4200` by default. Run School on port `4201` to match the configured invitation activation URL and Admin on port `4202`. To run the applications at the same time, use separate terminals:
 
 ```powershell
 npm start -- zelloa-family --port 4200
@@ -24,7 +28,11 @@ npm start -- zelloa-family --port 4200
 npm start -- zelloa-school --port 4201
 ```
 
-Then open `http://localhost:4200/` for Family and `http://localhost:4201/` for School. Both development servers reload when source files change.
+```powershell
+npm start -- zelloa-admin --port 4202
+```
+
+Then open `http://localhost:4200/` for Family, `http://localhost:4201/` for School, and `http://localhost:4202/` for Admin. The development servers reload when source files change.
 
 When running the API with the `http` launch profile (`dotnet run` from `src/Zelloa.Api`), it listens on `http://localhost:5027`. The School development environment targets this local API port. The Docker Compose API instead uses `http://localhost:8080`; switch the School development API URL only when using that container.
 

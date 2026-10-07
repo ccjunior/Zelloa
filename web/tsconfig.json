@@ -62,7 +62,12 @@
     },
     {
       "path": "./libs/utilities/tsconfig.spec.json"
+    },
+    {
+      "path": "./apps/zelloa-admin/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/zelloa-admin/tsconfig.spec.json"
     }
   ]
 }
-

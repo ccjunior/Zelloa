@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-10-07
 **Current Phase:** Phase 10 — Zelloa Admin (PlatformAdmin)
-**Phase Status:** IN PROGRESS — owner-approved start before the Phase 9 Gate to provision institutions and invite SchoolAdmins; Phase 9 remains incomplete
+**Phase Status:** IN PROGRESS — `zelloa-admin` is implemented and validated; browser-driven institution creation/SchoolAdmin activation remains pending; Phase 9 remains incomplete
 **Last Completed Phase:** Phase 4 — Ordering
 **Last Completed Gate:** Gate — Phase 4
 
@@ -43,7 +43,7 @@ Phase 3 is committed as `d3fc61b` (`feat: add tenant-scoped catalog management`)
 
 ## 4. Pending Work — Current Phase
 
-Authorized current scope: Phase 10 — build `zelloa-admin` as a separate Angular application inside `web/`. Use existing authentication and school endpoints so `PlatformAdmin` can sign in, create a school and its tenant, and invite the first `SchoolAdmin`. Display the returned `TenantId` and one-time activation URL securely. Do not add school listing/editing until the API contract supports it. After the Phase 10 Gate, return to the unfinished Phase 9 School smoke test; the full Phase 9 Gate, including catalog, orders, and cafeteria operation, remains pending.
+Authorized current scope: Phase 10 — a separate Angular `zelloa-admin` app now provides PlatformAdmin login, institution/tenant creation, and the initial SchoolAdmin invitation flow through existing APIs. Do not add school listing/editing until the API contract supports it. The app build, lint, workspace tests, local API authentication, and Admin-origin CORS are validated. A browser-driven school creation and invitation activation was not performed, so the Phase 10 Gate remains open. After that Gate, return to the unfinished Phase 9 School smoke test; the full Phase 9 Gate, including catalog, orders, and cafeteria operation, remains pending.
 
 ---
 
@@ -68,11 +68,11 @@ Authorized current scope: Phase 10 — build `zelloa-admin` as a separate Angula
 
 **Zelloa Family:** Initialized with routing, HTTP client, PWA, and base layout  
 **Zelloa School:** Early Phase 9 registration interface implemented: login/activation, protected admin shell, dashboard, classroom/student registration, and guardian invitation/link workflows. Development server: `npm start -- zelloa-school --port 4201` (matches the configured local invitation URL and API CORS origin). The Angular development environment targets the local .NET HTTP profile at port 5027; Docker Compose maps its API to port 8080.
-**Zelloa Admin:** Authorized as the next phase; Angular application not created yet. Planned local development port: `4202`.
+**Zelloa Admin:** Phase 10 application implemented with PlatformAdmin login, protected shell, institution/tenant registration, secure one-time invitation display/copy, and route guard. Start with `npm start -- zelloa-admin --port 4202`; local API origin `http://localhost:5027` allows this port.
 
-**School Lint:** PASS — `npm run ng -- lint zelloa-school`
-**School Tests:** PASS — 2 tests
-**School Build:** PASS — `npm run build:school` (production)
+**Workspace Lint:** PASS — `npm run lint`
+**Workspace Tests:** PASS — `npm test` (10 tests)
+**Workspace Build:** PASS — `npm run build` (Family, School, Admin production builds; zero warnings)
 
 ---
 
@@ -86,7 +86,7 @@ Authorized current scope: Phase 10 — build `zelloa-admin` as a separate Angula
 
 ## 9. Known Issues
 
-The hosted GitHub Actions workflow has not yet been verified after Git was configured. A `PlatformAdmin` exists in the local database, but there is no school or `SchoolAdmin`. The account must use the new Admin portal; it cannot log in to the School panel. A browser capture showed login `204`, `/api/me` `200`, and logout `204`, confirming the School role rejection. The School UI has not yet been manually smoke-tested against a SchoolAdmin account. Invitation URLs are returned once for manual delivery and must not be published or logged.
+The hosted GitHub Actions workflow has not yet been verified after Git was configured. A `PlatformAdmin` exists locally, but no school or `SchoolAdmin` has been created. Admin API login returned `204`, `/api/me` returned the `PlatformAdmin` role with null `TenantId`, and CORS allows `http://localhost:4202`. The UI was served successfully, but no school was created in the local database and the full browser activation flow remains unverified. Invitation URLs are returned once for manual delivery and must not be published or logged.
 
 ### Technical Debt
 
@@ -113,19 +113,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 9's early School frontend and documentation subset is committed as `01003bd`. Existing local configuration changes in `src/Zelloa.Api/Zelloa.Api.csproj`, `src/Zelloa.Api/appsettings.Development.json`, and `web/angular.json` are preserved and uncommitted. The new Phase 10 scope is documented; the `zelloa-admin` project is not yet implemented. All seven migrations, including the development payment migration, are applied locally.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 9's early School frontend/docs is committed as `01003bd`; the Phase 10 scope and architecture are documented in `dff71c0`. The Phase 10 app and deployment/docs integration are being prepared for a separate commit. Pre-existing local changes in `src/Zelloa.Api/Zelloa.Api.csproj`, `src/Zelloa.Api/appsettings.Development.json`, and the analytics setting in `web/angular.json` must be preserved; the Admin app config and local CORS origin `4202` are additional Phase 10 changes. All seven migrations are applied locally.
 
 ---
 
 ## 13. Next Recommended Task
 
-Implement the Phase 10 `zelloa-admin` Angular project, then validate PlatformAdmin login, school/tenant creation, invitation of the initial SchoolAdmin, and account activation. Preserve cookie authentication, antiforgery protections, and existing tenant ownership. After the Phase 10 Gate, return to the Phase 9 manual School registration smoke test; do not mark the Phase 9 Gate or Phases 5–8 complete.
+With the institution's actual details and initial SchoolAdmin contact, run the local Admin flow, create the school/tenant, invite the administrator, activate the account in Zelloa School, and smoke-test classroom/student/guardian registration. No disposable institution was added to the local database. Preserve cookie authentication, antiforgery protections, and tenant ownership. Do not mark the Phase 10 or Phase 9 Gate complete until the full UI-backed flow succeeds.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`; presentation and PSP-selection sequence as `f791486`; early Phase 9 School UI as `01003bd`. School workspace tests, lint, and Family/School production builds passed before that commit. A direct database role change was reverted to `PlatformAdmin`; the local API starts and `/health` returns 200. The owner then approved Phase 10 and a dedicated `zelloa-admin` Angular application before the full Phase 9 Gate. Implement Phase 10 first, then resume School API-backed registration testing; Phase 9 and Phases 5–8 are not complete.
+Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`; presentation and PSP sequencing as `f791486`; early Phase 9 School UI as `01003bd`; Phase 10 architecture/plan as `dff71c0`. The `zelloa-admin` app is implemented with login, PlatformAdmin guard, school/tenant creation, and one-time administrator invitation. Full workspace tests (10), lint, and Family/School/Admin production builds pass with no warnings. Local API auth and CORS were checked; no institution was created in the local DB, leaving the browser onboarding and School activation flow as the Phase 10 Gate check. A manual role change was reverted; backend startup/health and PlatformAdmin authentication are now healthy. The Phase 9 Gate and Phases 5–8 remain incomplete.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 

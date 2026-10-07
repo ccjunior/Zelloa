@@ -1,0 +1,8 @@
+<section class="invitation-card" aria-live="polite">
+  <div class="invitation-title"><div class="success-icon">✓</div><div><p class="eyebrow">CONVITE GERADO</p><h2>Envie o acesso ao administrador.</h2><p>O link é de uso único e expira em {{ formattedExpiry }}.</p></div></div>
+  <label for="activation-link">Link de ativação</label>
+  <div class="copy-row"><input id="activation-link" readonly [value]="invitation().activationUrl" (focus)="$any($event.target).select()" /><button class="secondary-button" type="button" (click)="copyActivationLink()">{{ copied() ? 'Copiado ✓' : 'Copiar link' }}</button></div>
+  @if (copyMessage()) { <p class="copy-message" role="status">{{ copyMessage() }}</p> }
+  <p class="privacy-note"><span aria-hidden="true">🔒</span> O link contém um token de ativação. Entregue-o diretamente ao destinatário.</p>
+  <button class="text-button" type="button" (click)="startAnother.emit()">Cadastrar outra instituição</button>
+</section>

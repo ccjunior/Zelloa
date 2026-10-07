@@ -1,0 +1,55 @@
+<main class="login-layout">
+  <section class="welcome-panel" aria-label="Administração Zelloa">
+    <a class="brand" href="/login" aria-label="Zelloa Admin">
+      <span class="brand-icon">z</span><span>zelloa <small>admin</small></span>
+    </a>
+    <div class="welcome-copy">
+      <span class="eyebrow">ADMINISTRAÇÃO DA PLATAFORMA</span>
+      <h1>Um começo organizado para cada escola.</h1>
+      <p>Cadastre instituições e prepare o primeiro acesso da equipe escolar.</p>
+    </div>
+    <div class="welcome-note"><span></span> Acesso restrito à equipe Zelloa</div>
+  </section>
+
+  <section class="form-panel" aria-labelledby="login-title">
+    <div class="form-wrap">
+      <div class="mobile-brand"><span class="brand-icon">z</span><span>zelloa <small>admin</small></span></div>
+      <p class="eyebrow form-eyebrow">ÁREA ADMINISTRATIVA</p>
+      <h2 id="login-title">Acesse sua conta.</h2>
+      <p class="form-intro">Entre com as credenciais do administrador da plataforma.</p>
+
+      @if (unauthorized) {
+        <div class="notice error" role="alert">Esta conta não tem permissão para acessar a administração da plataforma.</div>
+      }
+      @if (errorMessage()) { <div class="notice error" role="alert">{{ errorMessage() }}</div> }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label for="email">E-mail</label>
+        <div class="input-wrap" [class.invalid]="form.controls.email.invalid && form.controls.email.touched">
+          <span class="input-icon" aria-hidden="true">@</span>
+          <input id="email" type="email" formControlName="email" autocomplete="username" placeholder="admin@zelloa.com.br" />
+        </div>
+        @if (form.controls.email.invalid && form.controls.email.touched) { <span class="field-error">Informe um e-mail válido.</span> }
+
+        <label class="password-label" for="password">Senha</label>
+        <div class="input-wrap" [class.invalid]="form.controls.password.invalid && form.controls.password.touched">
+          <span class="input-icon" aria-hidden="true">●</span>
+          <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+            autocomplete="current-password" placeholder="Digite sua senha" />
+          <button class="reveal-button" type="button" (click)="showPassword.update(value => !value)"
+            [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'">
+            {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
+          </button>
+        </div>
+        @if (form.controls.password.invalid && form.controls.password.touched) { <span class="field-error">Informe sua senha.</span> }
+
+        <button class="submit-button" type="submit" [disabled]="loading() || form.invalid">
+          @if (loading()) { <span class="spinner" aria-hidden="true"></span> Entrando... }
+          @else { Entrar na plataforma <span aria-hidden="true">→</span> }
+        </button>
+      </form>
+      <p class="helper">A conta administrativa é provisionada pela configuração segura do ambiente.</p>
+    </div>
+    <footer>© {{ year }} Zelloa</footer>
+  </section>
+</main>

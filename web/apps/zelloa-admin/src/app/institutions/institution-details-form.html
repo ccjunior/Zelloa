@@ -1,0 +1,21 @@
+<section class="form-card" aria-labelledby="school-title">
+  <div class="card-heading"><div class="step-icon">01</div><div><h2 id="school-title">Dados da instituição</h2><p>Essas informações identificam a escola e seu tenant na plataforma.</p></div></div>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-grid">
+      <div class="field"><label for="school-name">Nome da instituição <em>*</em></label><input id="school-name" formControlName="name" placeholder="Ex.: Escola Horizonte" />
+        @if (form.controls.name.invalid && form.controls.name.touched) { <small class="field-error">Informe o nome da instituição.</small> }</div>
+      <div class="field"><label for="trade-name">Nome fantasia <em>*</em></label><input id="trade-name" formControlName="tradeName" placeholder="Nome usado no dia a dia" />
+        @if (form.controls.tradeName.invalid && form.controls.tradeName.touched) { <small class="field-error">Informe o nome fantasia.</small> }</div>
+      <div class="field"><label for="identifier">Identificador <span>opcional</span></label><input id="identifier" formControlName="identifier" placeholder="Código interno da instituição" /></div>
+      <div class="field"><label for="contact-email">E-mail de contato <span>opcional</span></label><input id="contact-email" type="email" formControlName="contactEmail" placeholder="contato@escola.com.br" />
+        @if (form.controls.contactEmail.invalid && form.controls.contactEmail.touched) { <small class="field-error">Informe um e-mail válido.</small> }</div>
+      <div class="field"><label for="contact-phone">Telefone <span>opcional</span></label><input id="contact-phone" type="tel" formControlName="contactPhone" placeholder="(00) 00000-0000" /></div>
+      <div class="field"><label for="timezone">Fuso horário <em>*</em></label><input id="timezone" formControlName="timeZone" placeholder="America/Bahia" />
+        <small class="field-hint">Usado para horários de pedido e operação.</small>
+        @if (form.controls.timeZone.invalid && form.controls.timeZone.touched) { <small class="field-error">Informe um fuso horário.</small> }</div>
+    </div>
+    <div class="form-footer"><p><span>i</span> O tenant será criado junto com a instituição.</p><button class="primary-button" type="submit" [disabled]="submitting() || form.invalid">
+      @if (submitting()) { <span class="spinner"></span> Salvando... } @else { Criar instituição <span>→</span> }
+    </button></div>
+  </form>
+</section>

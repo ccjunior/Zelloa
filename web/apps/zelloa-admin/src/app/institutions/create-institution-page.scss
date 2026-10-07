@@ -1,0 +1,28 @@
+.page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+.eyebrow { margin: 0 0 10px; color: #628c78; font-size: 10px; font-weight: 850; letter-spacing: .16em; }
+h1 { margin: 0; color: #173d32; font-size: clamp(29px, 3vw, 38px); line-height: 1.16; letter-spacing: -.045em; }
+.lead { max-width: 660px; margin: 12px 0 0; color: #72867c; font-size: 14px; line-height: 1.65; }
+.secure-badge { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; padding: 9px 12px; border: 1px solid #dbeae1; border-radius: 99px; color: #47765d; background: #f7fbf8; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.secure-badge span { width: 17px; height: 17px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #65a27d; font-size: 11px; }
+.step-line { display: flex; align-items: center; max-width: 600px; margin: 0 0 26px; }
+.step { display: flex; align-items: center; gap: 10px; color: #92a29a; }
+.step > span { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid #d8e2dc; border-radius: 50%; background: #fff; font-size: 12px; font-weight: 800; }
+.step.current { color: #245c48; }
+.step.current > span, .step.complete > span { border-color: #2d7458; color: #fff; background: #2d7458; }
+.step div { display: grid; gap: 2px; }
+.step strong { font-size: 12px; }
+.step small { color: #95a39c; font-size: 10px; }
+.step-connector { height: 1px; flex: 1; margin: 0 18px; background: #dce6e0; }
+.step-connector.complete { background: #83b395; }
+.success-card { display: grid; grid-template-columns: auto 1fr minmax(210px, 310px); align-items: center; gap: 17px; margin-bottom: 22px; padding: 22px 24px; border: 1px solid #d5e8db; border-radius: 13px; background: #fbfefb; box-shadow: 0 8px 28px #244b3710; }
+.success-icon { width: 39px; height: 39px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; color: #fff; background: #5d9e76; font-size: 18px; font-weight: 800; }
+.success-card .eyebrow { margin-bottom: 6px; }
+.success-card h2 { margin: 0; color: #204638; font-size: 18px; letter-spacing: -.02em; }
+.success-card p:not(.eyebrow) { margin: 6px 0 0; color: #7b8e84; font-size: 12px; }
+.tenant-box { display: grid; gap: 6px; padding: 11px 13px; border: 1px solid #dfebe2; border-radius: 8px; background: #fff; }
+.tenant-box span { color: #71877b; font-size: 10px; font-weight: 750; }
+.tenant-box code { color: #3a6650; font-size: 11px; overflow-wrap: anywhere; }
+.notice { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 18px; padding: 13px 15px; border: 1px solid #f0cbc7; border-radius: 9px; color: #a03d35; background: #fff4f2; font-size: 12px; line-height: 1.5; }
+.notice span { width: 17px; height: 17px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; color: #fff; background: #c46158; font-size: 11px; font-weight: 800; }
+@media (max-width: 820px) { .page-heading { align-items: flex-start; flex-direction: column; } .secure-badge { order: -1; margin: 0; } .success-card { grid-template-columns: auto 1fr; } .tenant-box { grid-column: 1 / -1; } }
+@media (max-width: 600px) { .step-connector { margin: 0 10px; } .step { gap: 7px; } .step small { display: none; } }

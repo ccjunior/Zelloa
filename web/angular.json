@@ -318,6 +318,88 @@
           }
         }
       }
+    },
+    "zelloa-admin": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "apps/zelloa-admin",
+      "sourceRoot": "apps/zelloa-admin/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "apps/zelloa-admin/src/main.ts",
+            "tsConfig": "apps/zelloa-admin/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "apps/zelloa-admin/public"
+              }
+            ],
+            "styles": ["apps/zelloa-admin/src/styles.scss"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "apps/zelloa-admin/src/environments/environment.ts",
+                  "with": "apps/zelloa-admin/src/environments/environment.production.ts"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "zelloa-admin:build:production"
+            },
+            "development": {
+              "buildTarget": "zelloa-admin:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/zelloa-admin/**/*.ts",
+              "apps/zelloa-admin/**/*.html"
+            ],
+            "eslintConfig": "apps/zelloa-admin/eslint.config.js"
+          }
+        }
+      }
     }
   }
 }
