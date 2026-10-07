@@ -113,7 +113,7 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 9's early School frontend/docs is committed as `01003bd`; the Phase 10 scope and architecture are documented in `dff71c0`. The Phase 10 app and deployment/docs integration are being prepared for a separate commit. Pre-existing local changes in `src/Zelloa.Api/Zelloa.Api.csproj`, `src/Zelloa.Api/appsettings.Development.json`, and the analytics setting in `web/angular.json` must be preserved; the Admin app config and local CORS origin `4202` are additional Phase 10 changes. All seven migrations are applied locally.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 9's early School frontend/docs is committed as `01003bd`; Phase 10 scope/architecture as `dff71c0`; the Admin app, local CORS origin, Docker service, and build/test integration as `33d4390`. Pre-existing local changes remain uncommitted and preserved in `src/Zelloa.Api/Zelloa.Api.csproj` (User Secrets ID), `src/Zelloa.Api/appsettings.Development.json` (local connection string), and the analytics setting in `web/angular.json`. All seven migrations are applied locally.
 
 ---
 
@@ -125,7 +125,7 @@ With the institution's actual details and initial SchoolAdmin contact, run the l
 
 ## 14. Session Handoff
 
-Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`; presentation and PSP sequencing as `f791486`; early Phase 9 School UI as `01003bd`; Phase 10 architecture/plan as `dff71c0`. The `zelloa-admin` app is implemented with login, PlatformAdmin guard, school/tenant creation, and one-time administrator invitation. Full workspace tests (10), lint, and Family/School/Admin production builds pass with no warnings. Local API auth and CORS were checked; no institution was created in the local DB, leaving the browser onboarding and School activation flow as the Phase 10 Gate check. A manual role change was reverted; backend startup/health and PlatformAdmin authentication are now healthy. The Phase 9 Gate and Phases 5–8 remain incomplete.
+Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`; presentation and PSP sequencing as `f791486`; early Phase 9 School UI as `01003bd`; Phase 10 architecture/plan as `dff71c0`; and the `zelloa-admin` portal as `33d4390`. The app provides login, a PlatformAdmin guard, school/tenant creation, and one-time administrator invitation. Full workspace tests (10), lint, Family/School/Admin production builds, and the Admin Docker image build pass. Local API auth and CORS were checked; no institution was created in the local DB, leaving the browser onboarding and School activation flow as the Phase 10 Gate check. A manual role change was reverted; backend startup/health and PlatformAdmin authentication are healthy. The Phase 9 Gate and Phases 5–8 remain incomplete.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 
