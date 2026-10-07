@@ -800,6 +800,8 @@ Antes de codificar:
 
 Registrar decisão técnica.
 
+Para o piloto, manter o gateway de simulação em desenvolvimento para apresentar o fluxo à escola. Depois da apresentação, confirmar com a escola qual banco/provedor já utiliza e considerar essa informação na seleção do PSP. Não iniciar código específico de PSP antes dessa decisão. A simulação da aplicação não é o sandbox/homologação de um PSP; o Gate desta fase continua exigindo cobrança real em homologação.
+
 ---
 
 # 49. Payment Domain

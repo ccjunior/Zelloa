@@ -90,13 +90,13 @@ The hosted GitHub Actions workflow has not yet been verified after Git was confi
 ### Technical Debt
 
 - **TD-001 — Product image management:** catalog currently stores an optional HTTPS `imageUrl` supplied by the school. Zelloa does not upload files or manage image storage/lifecycle. Decide whether to add managed storage, continue using externally hosted URLs, or defer images before the catalog image experience is used in a pilot.
-- **TD-002 — Remove development payment simulation:** remove the application-level simulated payment gateway after the real PSP integration has been validated in homologation. Keep any fake gateway used exclusively by automated tests separate; the simulator must never be available in production.
+- **TD-002 — Remove development payment simulation:** keep the application-level simulated payment gateway for the school presentation. After the school identifies its preferred provider and the real PSP integration is validated in homologation, remove the simulator. Keep any fake gateway used exclusively by automated tests separate; the simulator must never be available outside `Development`.
 
 ---
 
 ## 10. Blockers
 
-No open blocker remains in Phase 4. PSP selection is the next prerequisite for provider-specific implementation; the real PSP sandbox charge remains required for the Phase 5 Gate.
+No open blocker remains in Phase 4. PSP selection is intentionally deferred until after the simulated flow is presented and the school confirms its preferred/current provider. Provider-specific implementation requires that decision; a real PSP sandbox charge remains required for the Phase 5 Gate.
 
 ---
 
@@ -112,19 +112,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`. Phase 5 simulation code, migration, and documentation updates are currently uncommitted. The migration was generated but not applied to a database. No tests were run after the Phase 5 implementation.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation is committed as `8db6093`. This session has uncommitted documentation updates recording the presentation and PSP-selection sequence. The migration was generated but not applied to a database. No tests were run after the Phase 5 implementation.
 
 ---
 
 ## 13. Next Recommended Task
 
-Evaluate and select the pilot PSP using the criteria in documents 03 and 05, then implement its sandbox integration. The Phase 5 Gate still requires a real Pix charge and payment query in homologation; after that Gate, remove the application simulation tracked by TD-002. Run and resolve the applicable automated tests before considering Phase 5 complete.
+Present the development simulation to the school and confirm which bank/provider it uses and prefers. Record the PSP decision before provider-specific implementation. The Phase 5 Gate still requires a real Pix charge and payment query in that PSP's homologation environment; after the real integration is validated, remove the application simulation tracked by TD-002. Run and resolve the applicable automated tests before considering Phase 5 complete.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`. Phase 3 provides tenant-scoped catalog and records deferred image upload/managed storage as TD-001. Phase 4 reached its Gate with order creation, server-side price calculation, snapshots, unpaid cancellation, repeat revalidation, guardian history, per-shift school-local cutoffs, and the OrderingFoundation migration. The guardian does not choose a delivery date. Phase 5 development simulation is implemented with a `Payments` migration and environment-gated endpoints. Release build passes with zero warnings; EF reports no pending model changes. Automated tests were not run after these changes, and the migration has not been applied to a database. Next: select a PSP and implement/test the real sandbox integration; only then remove the application simulation (TD-002). The simulation never marks an order paid; automated-test fakes remain separate.
+Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`. Phase 3 provides tenant-scoped catalog and records deferred image upload/managed storage as TD-001. Phase 4 reached its Gate with order creation, server-side price calculation, snapshots, unpaid cancellation, repeat revalidation, guardian history, per-shift school-local cutoffs, and the OrderingFoundation migration. The guardian does not choose a delivery date. Phase 5 development simulation is available only in `Development`, uses a `Payments` migration, and does not mark orders paid. Release build passes with zero warnings; EF reports no pending model changes. Automated tests were not run after these changes, and the migration has not been applied to a database. Keep the simulator for the school presentation; ask the school which provider it uses and prefers before selecting the PSP. A PSP sandbox is a separate homologation environment and is still required for the Phase 5 Gate. Remove the application simulation after real PSP homologation is validated (TD-002); automated-test fakes remain separate.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 

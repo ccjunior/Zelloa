@@ -103,6 +103,8 @@ Neste momento:
 
 > **Banco do Brasil é o candidato principal.**
 
+A seleção final do PSP do piloto fica pendente até a apresentação do fluxo simulado à escola e a confirmação do banco/provedor que ela utiliza e prefere. O gateway `DevelopmentSimulation` é apenas uma simulação da aplicação em ambiente de desenvolvimento; não é sandbox nem homologação de um PSP.
+
 Antes da implementação real, essa informação deverá ser confirmada com a escola.
 
 ---
@@ -1133,7 +1135,7 @@ Regras obrigatórias:
 - manter credenciais e operações reais do PSP completamente separadas;
 - não considerar a simulação suficiente para o Gate da Fase 5.
 
-Após a integração real em homologação ser validada, remover o gateway de simulação da aplicação como débito técnico. O fake provider usado somente por testes automatizados poderá continuar existindo.
+Manter o gateway para a apresentação da funcionalidade à escola e para validação do fluxo de demonstração. Após a escola informar o provedor preferido e a integração real ser validada em homologação, remover o gateway de simulação da aplicação como débito técnico. O fake provider usado somente por testes automatizados poderá continuar existindo.
 
 ---
 
