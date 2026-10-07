@@ -874,6 +874,12 @@ Credenciais:
 
 Logs não poderão conter secrets.
 
+### Modo de simulação em desenvolvimento
+
+Um gateway de pagamento simulado poderá ser disponibilizado somente em ambiente de desenvolvimento para demonstrar e validar o fluxo da aplicação sem movimentar dinheiro. A simulação deverá usar a abstração `IPaymentGateway`, identificar claramente que a cobrança e qualquer confirmação são simuladas e permanecer indisponível em produção.
+
+Uma confirmação simulada deverá usar estado distinto (`SimulatedConfirmed`), preservar `ConfirmedAt` sem valor e não alterar o pedido para `Paid`. O modo simulado não representa liquidação financeira e não atende ao Gate desta fase. A cobrança real em homologação/sandbox continua obrigatória. A retirada do modo de simulação da aplicação após a validação da integração real será registrada como débito técnico; gateways falsos usados exclusivamente por testes automatizados poderão ser mantidos.
+
 ---
 
 # 54. Gate — Fase 5

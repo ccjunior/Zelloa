@@ -1291,6 +1291,8 @@ Autorização:
 Guardian proprietário do pedido
 ```
 
+Em ambiente de desenvolvimento com `Payments:SimulationEnabled=true`, esse endpoint cria uma cobrança simulada. A resposta inclui `isSimulated: true`; os dados Pix são marcadores de simulação, não podem ser pagos e não representam QR Code bancário.
+
 ---
 
 # 63. Request de Pagamento
@@ -1322,7 +1324,9 @@ Order.Total
   "status": "Pending",
   "pixCopyPaste": "...",
   "qrCode": "...",
-  "expiresAt": "..."
+  "expiresAt": "...",
+  "isSimulated": false,
+  "simulatedAt": null
 }
 ```
 
@@ -1343,9 +1347,24 @@ Resposta:
   "status": "Pending",
   "amount": 11.00,
   "expiresAt": "...",
-  "confirmedAt": null
+  "confirmedAt": null,
+  "isSimulated": false,
+  "simulatedAt": null
 }
 ```
+
+A resposta inclui `isSimulated` e `simulatedAt`. Quando `status` for `SimulatedConfirmed`, `confirmedAt` permanece `null` e o pedido continua `AwaitingPayment`.
+
+### Operações de simulação (somente Development)
+
+Estas rotas são registradas apenas quando o ambiente da API é `Development` e `Payments:SimulationEnabled=true`. São protegidas por sessão de responsável e antiforgery:
+
+```text
+POST /api/development/payments/{paymentId}/confirm
+POST /api/development/payments/{paymentId}/expire
+```
+
+Ambas retornam a representação do pagamento com `isSimulated: true`. A confirmação usa `SimulatedConfirmed`, não marca o pedido como pago e não atende ao Gate da Fase 5. Em qualquer outro ambiente, essas rotas não existem. A API falha ao iniciar se a simulação estiver habilitada fora de `Development`.
 
 ---
 

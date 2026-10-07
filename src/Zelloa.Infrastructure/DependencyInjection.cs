@@ -5,6 +5,7 @@ using Zelloa.Application.Catalog;
 using Zelloa.Infrastructure.Persistence;
 using Zelloa.Application.SchoolAcademic;
 using Zelloa.Application.Orders;
+using Zelloa.Application.Payments;
 
 namespace Zelloa.Infrastructure;
 
@@ -21,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<ICatalogStore, CatalogStore>();
         services.AddScoped<ISchoolAcademicStore, SchoolAcademicStore>();
         services.AddScoped<IOrderStore, OrderStore>();
+        services.AddScoped<IPaymentStore, PaymentStore>();
 
         return services;
     }

@@ -1,8 +1,8 @@
 # Zelloa — Current Development State
 
 **Last Updated:** 2026-10-06  
-**Current Phase:** Phase 4 — Ordering
-**Phase Status:** COMPLETE — Phase 4 Gate reached; awaiting explicit authorization for Phase 5
+**Current Phase:** Phase 5 — Payments
+**Phase Status:** IN PROGRESS — development-only simulated payment flow implemented; PSP selection and real sandbox integration remain pending
 **Last Completed Phase:** Phase 4 — Ordering
 **Last Completed Gate:** Gate — Phase 4
 
@@ -10,7 +10,7 @@
 
 ## 1. Current Objective
 
-Phase 4 — Ordering is complete. Its Gate is met: a valid order can be created without real payment integration, with financial values calculated and validated by the backend. Do not start Phase 5 until explicitly authorized.
+Phase 4 — Ordering is complete and committed as `261d1da`. Its Gate is met: a valid order can be created without real payment integration, with financial values calculated and validated by the backend. Phase 5 currently provides a development-only simulated payment flow. It does not authorize PSP-specific integration or satisfy the real sandbox requirement; select a PSP before implementing that integration.
 
 Phase 0 established the technical foundation; Phase 1 implemented authentication, authorization, and tenant context. Phase 2 completed school and academic records, guardian links, and invitations.
 
@@ -37,28 +37,28 @@ Available normative documentation:
 
 ## 3. Work In Progress
 
-Phase 3 is committed as `d3fc61b` (`feat: add tenant-scoped catalog management`). Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0` (`feat: implement school and academic phase`). Technical debt TD-001 records deferred managed image storage. Phase 4 adds server-priced orders, item snapshots, unpaid-order cancellation, repeat-order revalidation, guardian order history, and SchoolAdmin-configured cutoffs by class shift. No real payment integration was added.
+Phase 3 is committed as `d3fc61b` (`feat: add tenant-scoped catalog management`). Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0` (`feat: implement school and academic phase`). Phase 4 is committed as `261d1da` (`feat: implement ordering phase`) and adds server-priced orders, item snapshots, unpaid-order cancellation, repeat-order revalidation, guardian order history, and SchoolAdmin-configured cutoffs by class shift. Phase 5 now has a persisted development simulation behind `IPaymentGateway`, with owner-scoped create/query/confirm/expire operations and no real PSP calls. No production payment provider has been integrated.
 
 ---
 
 ## 4. Pending Work — Current Phase
 
-Phase 4 is implemented. CreateOrder validates guardian/student link, tenant, active student/classroom, active/available products, quantities, and school-local cutoff; it calculates prices on the server and stores item/class snapshots. Guardians can list, cancel unpaid, and repeat orders; repeat revalidates current price and availability. SchoolAdmins configure cutoff times per class shift. The guardian does not supply a delivery date; the server assigns the institution-local operational date. Missing or passed cutoffs reject order creation. No payment provider or paid-order transitions are implemented in this phase.
+The development-only payment simulation is implemented behind `IPaymentGateway`. It persists payment and order/tenant ownership; supports simulated Pix charge creation, guardian-only query, and development-only simulated confirmation/expiration; uses `SimulatedConfirmed` without setting `ConfirmedAt` or moving the order to `Paid`; returns conspicuous simulation markers; and rejects startup if simulation is enabled outside `Development`. The endpoints are mapped only when `Payments:SimulationEnabled=true`; the Development settings enable it and base settings disable it. The Phase 5 Gate still requires PSP selection and a real Pix charge in provider homologation/sandbox; webhooks remain in Phase 6.
 
 ---
 
 ## 5. Database State
 
 **Database:** PostgreSQL 17; Testcontainers and Compose connectivity validated; local Compose volume retained  
-**Latest Migration:** `OrderingFoundation`, following `CatalogFoundation`. EF reports no pending model changes. The integration suite applies migrations against PostgreSQL Testcontainers.
+**Latest Migration:** `DevelopmentPaymentSimulation`, following `OrderingFoundation`. Migration generated; `dotnet ef migrations has-pending-model-changes` reports no pending model changes. This migration has not yet been applied to a database.
 
 ---
 
 ## 6. Backend State
 
 **Solution:** `Zelloa.sln` initialized with four source projects and four test projects
-**Build:** PASS, Release, zero warnings.
-**Tests:** PASS — 6 Architecture Tests and 18 PostgreSQL integration/security tests. Domain/Application test projects contain no tests.
+**Build:** PASS, Release, zero warnings, after simulated payment implementation.
+**Tests:** Not run after the Phase 5 changes. The last Phase 4 run passed 6 Architecture Tests and 18 PostgreSQL integration/security tests; Domain/Application test projects contain no tests.
 
 ---
 
@@ -90,18 +90,19 @@ The hosted GitHub Actions workflow has not yet been verified after Git was confi
 ### Technical Debt
 
 - **TD-001 — Product image management:** catalog currently stores an optional HTTPS `imageUrl` supplied by the school. Zelloa does not upload files or manage image storage/lifecycle. Decide whether to add managed storage, continue using externally hosted URLs, or defer images before the catalog image experience is used in a pilot.
+- **TD-002 — Remove development payment simulation:** remove the application-level simulated payment gateway after the real PSP integration has been validated in homologation. Keep any fake gateway used exclusively by automated tests separate; the simulator must never be available in production.
 
 ---
 
 ## 10. Blockers
 
-No open blocker remains in Phase 4. Phase 5 requires explicit authorization and PSP selection before integration work begins.
+No open blocker remains in Phase 4. PSP selection is the next prerequisite for provider-specific implementation; the real PSP sandbox charge remains required for the Phase 5 Gate.
 
 ---
 
 ## 11. Decisions Made During Development
 
-Owner-approved decisions: ASP.NET Core Identity with cookie sessions; one tenant per institutional account, with multiple accounts per tenant; school owns student registration and initiates guardian access; guardian context selection across schools is future scope; PlatformAdmin invites the initial SchoolAdmin, and SchoolAdmin invites Guardians via manually delivered, single-use activation links expiring after 24 hours; product image uploads/storage remain open as technical debt TD-001, with optional HTTPS URLs supported for now. Guardians do not select a delivery date, and order cutoffs are configured per class shift by the school.
+Owner-approved decisions: ASP.NET Core Identity with cookie sessions; one tenant per institutional account, with multiple accounts per tenant; school owns student registration and initiates guardian access; guardian context selection across schools is future scope; PlatformAdmin invites the initial SchoolAdmin, and SchoolAdmin invites Guardians via manually delivered, single-use activation links expiring after 24 hours; product image uploads/storage remain open as technical debt TD-001, with optional HTTPS URLs supported for now; the development-only payment simulation is implemented, with removal after real PSP homologation tracked by TD-002. Guardians do not select a delivery date, and order cutoffs are configured per class shift by the school.
 
 Architectural and product decisions already defined in the normative documentation must not be duplicated here.
 
@@ -111,19 +112,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`. Phase 4 code, migration, tests, and documentation are uncommitted. No Phase 4 commit has been requested.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`. Phase 5 simulation code, migration, and documentation updates are currently uncommitted. The migration was generated but not applied to a database. No tests were run after the Phase 5 implementation.
 
 ---
 
 ## 13. Next Recommended Task
 
-Review and commit Phase 4 when requested. Do not start Phase 5 until explicitly authorized; Phase 5 begins with selecting a PSP.
+Evaluate and select the pilot PSP using the criteria in documents 03 and 05, then implement its sandbox integration. The Phase 5 Gate still requires a real Pix charge and payment query in homologation; after that Gate, remove the application simulation tracked by TD-002. Run and resolve the applicable automated tests before considering Phase 5 complete.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`. Phase 3 provides tenant-scoped catalog and records deferred image upload/managed storage as TD-001. Phase 4 has reached its Gate: order creation, server-side price calculation, snapshots, unpaid cancellation, repeat revalidation, guardian history, per-shift school-local cutoffs, and the OrderingFoundation migration are implemented. The guardian does not choose a delivery date. Release build passed with zero warnings, all 6 architecture tests and all 18 PostgreSQL integration/security tests passed, and EF reports no pending model changes. Changes remain uncommitted. Await explicit authorization before Phase 5; its first task is PSP selection.
+Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`. Phase 3 provides tenant-scoped catalog and records deferred image upload/managed storage as TD-001. Phase 4 reached its Gate with order creation, server-side price calculation, snapshots, unpaid cancellation, repeat revalidation, guardian history, per-shift school-local cutoffs, and the OrderingFoundation migration. The guardian does not choose a delivery date. Phase 5 development simulation is implemented with a `Payments` migration and environment-gated endpoints. Release build passes with zero warnings; EF reports no pending model changes. Automated tests were not run after these changes, and the migration has not been applied to a database. Next: select a PSP and implement/test the real sandbox integration; only then remove the application simulation (TD-002). The simulation never marks an order paid; automated-test fakes remain separate.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 

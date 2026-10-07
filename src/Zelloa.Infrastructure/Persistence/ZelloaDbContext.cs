@@ -8,6 +8,7 @@ using Zelloa.Domain.Invitations;
 using Zelloa.Domain.Schools;
 using Zelloa.Domain.Tenants;
 using Zelloa.Domain.Orders;
+using Zelloa.Domain.Payments;
 using Zelloa.Infrastructure.Identity;
 
 namespace Zelloa.Infrastructure.Persistence;
@@ -30,6 +31,7 @@ public sealed class ZelloaDbContext(
     public DbSet<AccountInvitation> AccountInvitations => Set<AccountInvitation>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderCutoff> OrderCutoffs => Set<OrderCutoff>();
+    public DbSet<Payment> Payments => Set<Payment>();
 
     public Guid CurrentTenantId => _tenantContext.TenantId;
 
@@ -220,6 +222,31 @@ public sealed class ZelloaDbContext(
             entity.Property(item => item.ProductName).HasMaxLength(200).IsRequired();
             entity.Property(item => item.UnitPrice).HasPrecision(18, 2);
             entity.Property(item => item.Subtotal).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.ToTable("Payments", table =>
+                table.HasCheckConstraint("CK_Payments_Amount_Positive", "\"Amount\" > 0"));
+            entity.HasKey(payment => payment.Id);
+            entity.HasAlternateKey(payment => new { payment.TenantId, payment.Id });
+            entity.Property(payment => payment.Provider).HasMaxLength(100).IsRequired();
+            entity.Property(payment => payment.ExternalTransactionId).HasMaxLength(200).IsRequired();
+            entity.Property(payment => payment.Amount).HasPrecision(18, 2);
+            entity.Property(payment => payment.Currency).HasMaxLength(3).IsRequired();
+            entity.Property(payment => payment.Status).HasConversion<string>().HasMaxLength(32).IsRequired();
+            entity.Property(payment => payment.PixCopyPaste).HasMaxLength(1000).IsRequired();
+            entity.Property(payment => payment.QrCodeReference).HasMaxLength(2048).IsRequired();
+            entity.HasIndex(payment => new { payment.TenantId, payment.OrderId, payment.CreatedAt });
+            entity.HasIndex(payment => new { payment.TenantId, payment.Provider, payment.ExternalTransactionId })
+                .IsUnique();
+            entity.HasQueryFilter(payment => payment.TenantId == CurrentTenantId);
+            entity.HasOne<Tenant>().WithMany().HasForeignKey(payment => payment.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Order>().WithMany()
+                .HasForeignKey(payment => new { payment.TenantId, payment.OrderId })
+                .HasPrincipalKey(order => new { order.TenantId, order.Id })
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<IdentityRole<Guid>>().HasData(

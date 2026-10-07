@@ -1119,6 +1119,22 @@ Seu objetivo é facilitar testes automatizados.
 
 Nunca deverá estar habilitado em produção.
 
+## Simulação do fluxo em desenvolvimento
+
+Além do fake provider restrito aos testes automatizados, a aplicação poderá oferecer um gateway simulado em ambiente de desenvolvimento para demonstrar o fluxo de pagamento antes da escolha e integração do PSP do piloto.
+
+Regras obrigatórias:
+
+- usar a abstração `IPaymentGateway`, sem chamadas a instituições financeiras;
+- não movimentar dinheiro nem afirmar que houve liquidação real;
+- usar o estado distinto `SimulatedConfirmed` para a confirmação simulada; não preencher `ConfirmedAt` nem mudar o pedido para `Paid`;
+- identificar cobranças e confirmações simuladas na API e na interface que as apresentar;
+- habilitar somente em ambiente de desenvolvimento; falhar de forma segura se configurado em produção;
+- manter credenciais e operações reais do PSP completamente separadas;
+- não considerar a simulação suficiente para o Gate da Fase 5.
+
+Após a integração real em homologação ser validada, remover o gateway de simulação da aplicação como débito técnico. O fake provider usado somente por testes automatizados poderá continuar existindo.
+
 ---
 
 # 60. Banco do Brasil — Estrutura Futura
