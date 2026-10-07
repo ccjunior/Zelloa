@@ -55,6 +55,30 @@ public static class SchoolAcademicEndpoints
             .AddEndpointFilter<AntiforgeryEndpointFilter>()
             .WithName("InviteSchoolAdministrator");
 
+        api.MapPost("/school-administrator-invitations/renew", async (
+                RenewInvitationRequest request,
+                HttpContext context,
+                IdentityInvitationService invitations,
+                CancellationToken cancellationToken) =>
+            {
+                if (request.Email is null || request.Email.Trim().Length > 256
+                    || !new EmailAddressAttribute().IsValid(request.Email.Trim()))
+                    return Results.BadRequest();
+
+                var result = await invitations.RenewSchoolAdminInvitationAsync(
+                    request.Email, cancellationToken);
+                if (result.Status == InvitationStatus.NotFound) return Results.NotFound();
+                if (result.Status == InvitationStatus.Conflict) return Results.Conflict();
+                if (result.Status == InvitationStatus.Misconfigured) return Results.Problem();
+                SetInvitationResponseHeaders(context);
+                return Results.Json(
+                    new InvitationResponse(result.UserId!.Value, result.ActivationUrl!, result.ExpiresAt!.Value),
+                    statusCode: StatusCodes.Status201Created);
+            })
+            .RequireAuthorization(policy => policy.RequireRole(ZelloaRoles.PlatformAdmin))
+            .AddEndpointFilter<AntiforgeryEndpointFilter>()
+            .WithName("RenewSchoolAdministratorInvitation");
+
         api.MapGet("/school", async (
                 ICurrentUser currentUser,
                 SchoolOperations operations,
@@ -404,4 +428,5 @@ public sealed record CreateStudentRequest(string Name, Guid ClassroomId);
 public sealed record UpdateStudentRequest(string Name, Guid ClassroomId);
 public sealed record SetStatusRequest(string Status);
 public sealed record CreateInvitationRequest(string DisplayName, string Email);
+public sealed record RenewInvitationRequest(string Email);
 public sealed record InvitationResponse(Guid UserId, string ActivationUrl, DateTimeOffset ExpiresAt);

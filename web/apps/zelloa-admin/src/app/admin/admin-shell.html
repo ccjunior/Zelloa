@@ -7,6 +7,9 @@
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">
         <span class="nav-icon">▧</span> Cadastrar instituição
       </a>
+      <a routerLink="/convites/renovar" routerLinkActive="active" (click)="closeMenu()">
+        <span class="nav-icon">↻</span> Renovar convite
+      </a>
     </nav>
     <div class="sidebar-bottom">
       <div class="user-avatar">{{ auth.user()?.displayName?.charAt(0) ?? 'Z' }}</div>

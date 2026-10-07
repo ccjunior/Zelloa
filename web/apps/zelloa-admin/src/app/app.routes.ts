@@ -9,6 +9,7 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/admin-shell').then(module => module.AdminShell),
     children: [
       { path: '', pathMatch: 'full', loadComponent: () => import('./institutions/create-institution-page').then(module => module.CreateInstitutionPage) },
+      { path: 'convites/renovar', loadComponent: () => import('./institutions/renew-school-admin-invitation-page').then(module => module.RenewSchoolAdminInvitationPage) },
     ],
   },
   { path: '**', redirectTo: '' },

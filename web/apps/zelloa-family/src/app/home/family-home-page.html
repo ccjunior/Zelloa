@@ -1,0 +1,32 @@
+<section class="home-card" aria-labelledby="home-title">
+  <div class="home-heading">
+    <div>
+      <p class="eyebrow">SUA CONTA</p>
+      <h2 id="home-title">Olá, {{ user()?.displayName }}.</h2>
+      <p class="intro">Esta é a área dos alunos vinculados ao seu acesso.</p>
+    </div>
+    <button class="logout-button" type="button" (click)="logout()">Sair</button>
+  </div>
+
+  <div class="section-heading"><div><h3>Alunos vinculados</h3><p>Os vínculos são gerenciados pela escola.</p></div><span class="student-count">{{ students().length }}</span></div>
+
+  @if (loading()) {
+    <div class="state-message" role="status"><span class="spinner"></span> Carregando seus alunos...</div>
+  } @else if (errorMessage()) {
+    <div class="notice error" role="alert">{{ errorMessage() }} <button type="button" (click)="loadStudents()">Tentar novamente</button></div>
+  } @else if (students().length === 0) {
+    <div class="empty-state"><span aria-hidden="true">◎</span><strong>Nenhum aluno vinculado ainda.</strong><p>Peça à escola para concluir o vínculo entre sua conta e o aluno.</p></div>
+  } @else {
+    <div class="student-list">
+      @for (student of students(); track student.id) {
+        <article class="student-card">
+          <div class="student-avatar" aria-hidden="true">{{ student.name.charAt(0).toUpperCase() }}</div>
+          <div class="student-copy"><h4>{{ student.name }}</h4><p>{{ student.classroomName }}</p></div>
+          <span class="status" [class.inactive]="!student.isActive">{{ student.isActive ? 'Vínculo ativo' : 'Inativo' }}</span>
+        </article>
+      }
+    </div>
+  }
+
+  <p class="phase-note">Nesta etapa, você pode confirmar o acesso e consultar seus vínculos. Catálogo e pedidos serão disponibilizados em outra etapa.</p>
+</section>

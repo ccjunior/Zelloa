@@ -84,6 +84,18 @@ public static class IdentityServiceCollectionExtensions
             var allowedOrigins = appConfiguration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
             options.AddPolicy("ZelloaWeb", policy =>
             {
+                if (environment.IsDevelopment())
+                {
+                    policy.SetIsOriginAllowed(origin =>
+                            Uri.TryCreate(origin, UriKind.Absolute, out var uri)
+                            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                            && uri.IsLoopback)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                    return;
+                }
+
                 if (allowedOrigins.Length == 0)
                 {
                     policy.SetIsOriginAllowed(_ => false);

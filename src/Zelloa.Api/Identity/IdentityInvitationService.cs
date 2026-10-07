@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,59 @@ public sealed class IdentityInvitationService(
             "Family",
             guardian: true,
             cancellationToken);
+
+    public async Task<InvitationResult> RenewSchoolAdminInvitationAsync(
+        string email, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByEmailAsync(email.Trim());
+        if (user is null) return InvitationResult.NotFoundResult;
+
+        var roles = await userManager.GetRolesAsync(user);
+        if (!roles.Contains(ZelloaRoles.SchoolAdmin) || user.TenantId is not { } tenantId)
+            return InvitationResult.NotFoundResult;
+
+        if (user.EmailConfirmed || user.PasswordHash is not null)
+            return InvitationResult.ConflictResult;
+
+        var hasSchool = await dbContext.Schools.IgnoreQueryFilters()
+            .AnyAsync(school => school.TenantId == tenantId, cancellationToken);
+        if (!hasSchool) return InvitationResult.NotFoundResult;
+
+        var clientUrl = configuration["InvitationUrls:School"];
+        if (!Uri.TryCreate(clientUrl, UriKind.Absolute, out var activationBase)
+            || (environment.IsProduction() && activationBase.Scheme != Uri.UriSchemeHttps))
+        {
+            throw new InvalidOperationException("InvitationUrls:School must be configured with an absolute URL.");
+        }
+
+        var now = timeProvider.GetUtcNow();
+        var expiresAt = now.Add(InvitationLifetime);
+        var rawToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
+        var activationUrl = CreateActivationUrl(activationBase.ToString(), user.Email!, rawToken);
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(
+            IsolationLevel.Serializable, cancellationToken);
+        await dbContext.Entry(user).ReloadAsync(cancellationToken);
+        if (user.EmailConfirmed || user.PasswordHash is not null)
+            return InvitationResult.ConflictResult;
+
+        await dbContext.AccountInvitations
+            .Where(invitation => invitation.UserId == user.Id && invitation.RedeemedAt == null)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        dbContext.AccountInvitations.Add(new AccountInvitation(
+            Guid.NewGuid(),
+            user.Id,
+            tenantId,
+            ZelloaRoles.SchoolAdmin,
+            HashToken(rawToken),
+            now,
+            expiresAt));
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return InvitationResult.Created(user.Id, activationUrl, expiresAt);
+    }
 
     public async Task<ActivationResult> ActivateAsync(
         string email, string token, string password, CancellationToken cancellationToken)
@@ -120,11 +174,7 @@ public sealed class IdentityInvitationService(
 
         var now = timeProvider.GetUtcNow();
         var rawToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
-        var activationUrl = QueryHelpers.AddQueryString(activationBase.ToString(), new Dictionary<string, string?>
-        {
-            ["email"] = normalizedEmail,
-            ["token"] = rawToken
-        });
+        var activationUrl = CreateActivationUrl(activationBase.ToString(), normalizedEmail, rawToken);
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
         var user = new ZelloaUser
@@ -170,6 +220,13 @@ public sealed class IdentityInvitationService(
 
     private static string HashToken(string token) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+
+    private static string CreateActivationUrl(string activationBase, string email, string token) =>
+        QueryHelpers.AddQueryString(activationBase, new Dictionary<string, string?>
+        {
+            ["email"] = email,
+            ["token"] = token
+        });
 }
 
 public sealed record InvitationResult(InvitationStatus Status, Guid? UserId, string? ActivationUrl, DateTimeOffset? ExpiresAt)

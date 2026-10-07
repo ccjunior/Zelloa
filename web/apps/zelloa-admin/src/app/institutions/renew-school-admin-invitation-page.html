@@ -1,0 +1,35 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">ACESSO ESCOLAR</p>
+    <h1>Gere um novo link de ativação.</h1>
+    <p class="lead">Informe o e-mail do administrador escolar que ainda não ativou a conta. O novo link vale por 24 horas e invalida o anterior.</p>
+  </div>
+  <div class="secure-badge"><span>✓</span> Acesso interno</div>
+</section>
+
+@if (errorMessage()) { <div class="notice error" role="alert"><span>!</span>{{ errorMessage() }}</div> }
+
+@if (!invitation()) {
+  <section class="form-card" aria-labelledby="renew-title">
+    <div class="card-heading"><div class="step-icon">↻</div><div><h2 id="renew-title">Renovar convite do administrador</h2><p>A conta e a instituição serão mantidas.</p></div></div>
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="admin-email">E-mail de acesso <em>*</em></label>
+        <input id="admin-email" type="email" formControlName="email" placeholder="admin@escola.com.br" autocomplete="email" />
+        @if (form.controls.email.invalid && form.controls.email.touched) { <small class="field-error">Informe um e-mail válido.</small> }
+      </div>
+      <div class="form-footer">
+        <p><span>i</span> O link anterior deixará de funcionar assim que um novo for gerado.</p>
+        <button class="primary-button" type="submit" [disabled]="submitting() || form.invalid">
+          @if (submitting()) { <span class="spinner"></span> Gerando link... } @else { Gerar novo link <span>→</span> }
+        </button>
+      </div>
+    </form>
+  </section>
+} @else {
+  <app-activation-invitation-card
+    [invitation]="invitation()!"
+    startAnotherLabel="Gerar outro link"
+    (startAnother)="startAnotherRenewal()"
+  />
+}

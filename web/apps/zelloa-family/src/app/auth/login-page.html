@@ -1,0 +1,26 @@
+<section class="auth-card" aria-labelledby="login-title">
+  <p class="eyebrow">ACESSO DA FAMÍLIA</p>
+  <h2 id="login-title">Entre na sua conta.</h2>
+  <p class="intro">Acompanhe os alunos vinculados e, em breve, os serviços da escola.</p>
+
+  @if (activated) { <div class="notice success" role="status">Conta ativada. Entre com seu e-mail e a senha que acabou de criar.</div> }
+  @if (errorMessage()) { <div class="notice error" role="alert">{{ errorMessage() }}</div> }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="email">E-mail</label>
+      <div class="input-wrap"><span aria-hidden="true">@</span><input id="email" type="email" formControlName="email" autocomplete="username" placeholder="voce@email.com" /></div>
+      @if (form.controls.email.invalid && form.controls.email.touched) { <small>Informe um e-mail válido.</small> }
+    </div>
+    <div class="field">
+      <label for="password">Senha</label>
+      <div class="input-wrap"><span aria-hidden="true">●</span><input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" placeholder="Sua senha" /><button class="visibility" type="button" (click)="togglePassword()">{{ showPassword() ? 'Ocultar' : 'Mostrar' }}</button></div>
+      @if (form.controls.password.invalid && form.controls.password.touched) { <small>Informe sua senha.</small> }
+    </div>
+    <button class="primary-button" type="submit" [disabled]="form.invalid || loading()">
+      @if (loading()) { <span class="spinner"></span> Entrando... } @else { Entrar <span aria-hidden="true">→</span> }
+    </button>
+  </form>
+
+  <p class="help-text">Ainda não ativou sua conta? Abra o link de convite enviado pela escola. Se ele expirou, peça um novo à instituição.</p>
+</section>

@@ -1,0 +1,23 @@
+.auth-card { max-width: 31rem; margin: 0 auto; padding: clamp(1.4rem, 5vw, 2.25rem); border: 1px solid #e0e9e3; border-radius: 1.15rem; background: #fff; box-shadow: 0 18px 50px #18312d0d; }
+.eyebrow { margin: 0 0 .65rem; color: #528066; font-size: .68rem; font-weight: 800; letter-spacing: .16em; }
+h2 { margin: 0; color: #183b30; font-size: clamp(1.55rem, 5vw, 1.9rem); letter-spacing: -.04em; }
+.intro { margin: .55rem 0 1.5rem; color: #65786f; font-size: .92rem; line-height: 1.55; }
+form { display: grid; gap: 1.15rem; }
+.field { display: grid; gap: .48rem; }
+label { color: #2e4c3f; font-size: .78rem; font-weight: 750; }
+.input-wrap { display: flex; min-height: 3.15rem; align-items: center; gap: .65rem; padding: 0 .8rem; border: 1px solid #dbe6df; border-radius: .7rem; background: #fff; }
+.input-wrap:focus-within { border-color: #73a985; box-shadow: 0 0 0 3px #73a98520; }
+.input-wrap > span { color: #6d927b; font-size: .85rem; }
+input { width: 100%; min-width: 0; border: 0; outline: 0; color: #244537; background: transparent; font: inherit; font-size: .88rem; }
+input::placeholder { color: #a3b1a9; }
+.visibility { padding: .4rem 0 .4rem .4rem; border: 0; color: #517c63; background: transparent; font-size: .7rem; font-weight: 700; cursor: pointer; }
+.field small { color: #aa473d; font-size: .7rem; }
+.primary-button { display: flex; min-height: 3.1rem; align-items: center; justify-content: center; gap: .55rem; margin-top: .25rem; border: 0; border-radius: .7rem; color: #fff; background: #286548; font: inherit; font-size: .88rem; font-weight: 750; cursor: pointer; }
+.primary-button:hover:not(:disabled) { background: #1c5239; }
+.primary-button:disabled { opacity: .55; cursor: not-allowed; }
+.spinner { width: 1rem; height: 1rem; border: 2px solid #ffffff70; border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
+.notice { margin: 0 0 1rem; padding: .8rem .9rem; border-radius: .65rem; font-size: .78rem; line-height: 1.5; }
+.notice.error { color: #9b3f36; background: #fff0ed; }
+.notice.success { color: #286548; background: #eaf5ed; }
+.help-text { margin: 1.25rem 0 0; color: #75867d; font-size: .75rem; line-height: 1.6; text-align: center; }
+@keyframes spin { to { transform: rotate(360deg); } }

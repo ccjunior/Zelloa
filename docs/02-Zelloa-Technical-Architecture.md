@@ -964,6 +964,8 @@ O `PlatformAdmin` cria o tenant e a escola e gera um convite para ativar a conta
 
 Convites são links individuais de uso único, válidos por 24 horas no MVP. O emissor copia e entrega o link manualmente. Não integrar serviço de e-mail ou outro provedor de entrega nesta fase. Armazenar somente representação protegida do token; não registrar tokens nos logs nem armazená-los em claro. A ativação confirma o endereço de e-mail informado no convite.
 
+Enquanto a conta inicial de `SchoolAdmin` estiver pendente, o `PlatformAdmin` poderá emitir um novo convite pelo endereço de e-mail. A nova emissão invalida tokens anteriores ainda não consumidos e define a expiração para 24 horas após a nova geração.
+
 Persistir a expiração e o consumo do convite em registro associado à conta, tenant e papel concedido. A ativação e o consumo do convite deverão ocorrer atomicamente para impedir reutilização concorrente.
 
 ## Associação de conta e instituição

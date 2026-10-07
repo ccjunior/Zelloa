@@ -47,7 +47,9 @@ There is no public account-registration endpoint. The first `PlatformAdmin` can 
 
 `PlatformAdmin` creates a school and invites its initial `SchoolAdmin`. A `SchoolAdmin` creates guardian accounts and links guardians to students. Invitations are single-use activation links valid for 24 hours; delivery is manual in this phase. Configure `InvitationUrls__School` and `InvitationUrls__Family` to the corresponding frontend activation routes. Do not publish invitation links or store them in logs. Public self-registration and automated email delivery are not available.
 
-Development CORS origins are limited to the local Family, School, and Admin app ports. Configure production origins explicitly through `Cors__AllowedOrigins__0` and additional indexed values as needed.
+In the Development environment, the API accepts credentialed requests from HTTP/HTTPS loopback origins (`localhost` and loopback IPs) on any port, so Angular's dynamically selected development port works. In other environments, only explicitly configured origins are allowed through `Cors__AllowedOrigins__0` and additional indexed values as needed.
+
+When the School development server uses a non-default port, set `InvitationUrls__School` to that port's `/activate-invitation` URL so copied activation links open the running app.
 
 Local database credentials are development-only values defined in `docker-compose.yml` and `appsettings.json`. Replace them through environment-specific secret configuration before any shared or production deployment.
 

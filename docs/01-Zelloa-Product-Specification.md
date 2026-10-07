@@ -280,6 +280,8 @@ O administrador escolar cadastra o responsável e inicia o convite de ativação
 
 No MVP, os convites serão gerados como links individuais de uso único e entregues manualmente pelo administrador que os criou. A ativação deverá ocorrer em até 24 horas. Não haverá cadastro público nem envio automatizado por provedor externo nesta fase.
 
+Se o convite do administrador escolar inicial expirar antes da ativação, o `PlatformAdmin` poderá gerar outro para o mesmo endereço. A nova geração invalida os links anteriores e inicia um novo prazo de 24 horas.
+
 ---
 
 # 11. Módulo — Catálogo

@@ -612,6 +612,14 @@ POST /api/schools/{schoolId}/administrator-invitation
 
 Autorização: `PlatformAdmin`. Request: `displayName` e `email`. A resposta contém um `activationUrl` de uso único, entregue manualmente ao administrador. A URL expira em 24 horas.
 
+Enquanto a conta convidada continuar sem ativação, o `PlatformAdmin` poderá solicitar um novo link pelo e-mail da conta:
+
+```text
+POST /api/school-administrator-invitations/renew
+```
+
+Request: `email`. A operação só aceita contas pendentes com papel `SchoolAdmin` vinculadas a uma instituição. Ela invalida convites anteriores ainda não consumidos e retorna um novo `activationUrl` com `expiresAt` 24 horas após a geração. Conta já ativada retorna `409 Conflict`; conta inexistente ou que não seja um `SchoolAdmin` pendente retorna `404 Not Found`.
+
 ---
 
 # 32. Consultar Escola Atual
@@ -2191,6 +2199,7 @@ SCHOOL
 
 POST   /api/schools
 POST   /api/schools/{schoolId}/administrator-invitation
+POST   /api/school-administrator-invitations/renew
 GET    /api/school
 PUT    /api/school
 

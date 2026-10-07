@@ -8,6 +8,7 @@ import { InvitationResponse } from '../core/platform-api.service';
 })
 export class ActivationInvitationCard {
   readonly invitation = input.required<InvitationResponse>();
+  readonly startAnotherLabel = input('Cadastrar outra instituição');
   readonly startAnother = output<void>();
   readonly copied = signal(false);
   readonly copyMessage = signal('');

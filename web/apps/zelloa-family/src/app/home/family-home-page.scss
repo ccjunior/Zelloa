@@ -1,0 +1,30 @@
+.home-card { max-width: 52rem; margin: 0 auto; padding: clamp(1.35rem, 4vw, 2rem); border: 1px solid #e0e9e3; border-radius: 1.15rem; background: #fff; box-shadow: 0 18px 50px #18312d0d; }
+.home-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding-bottom: 1.35rem; border-bottom: 1px solid #e9efeb; }
+.eyebrow { margin: 0 0 .55rem; color: #528066; font-size: .68rem; font-weight: 800; letter-spacing: .16em; }
+h2 { margin: 0; color: #183b30; font-size: clamp(1.55rem, 5vw, 2rem); letter-spacing: -.04em; }
+.intro { margin: .45rem 0 0; color: #65786f; font-size: .84rem; line-height: 1.5; }
+.logout-button { padding: .6rem .9rem; border: 1px solid #d9e5dd; border-radius: .65rem; color: #42634f; background: #fff; font: inherit; font-size: .75rem; font-weight: 750; cursor: pointer; }
+.logout-button:hover { background: #f2f7f3; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 1.35rem 0 1rem; }
+h3 { margin: 0; color: #27493a; font-size: 1rem; }
+.section-heading p { margin: .25rem 0 0; color: #78887f; font-size: .72rem; }
+.student-count { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 50%; color: #286548; background: #eaf4ed; font-size: .78rem; font-weight: 800; }
+.student-list { display: grid; gap: .7rem; }
+.student-card { display: flex; align-items: center; gap: .8rem; padding: .85rem; border: 1px solid #e4ece6; border-radius: .8rem; background: #fcfdfc; }
+.student-avatar { display: grid; width: 2.6rem; height: 2.6rem; place-items: center; flex: 0 0 auto; border-radius: .8rem; color: #286548; background: #e7f1e9; font-size: 1rem; font-weight: 800; }
+.student-copy { min-width: 0; flex: 1; }
+h4 { overflow: hidden; margin: 0; color: #244537; font-size: .86rem; text-overflow: ellipsis; white-space: nowrap; }
+.student-copy p { margin: .3rem 0 0; color: #71857a; font-size: .72rem; }
+.status { padding: .32rem .5rem; border-radius: 99px; color: #32724d; background: #e9f5ec; font-size: .63rem; font-weight: 750; white-space: nowrap; }
+.status.inactive { color: #855c30; background: #fbf1dd; }
+.state-message { display: flex; align-items: center; gap: .65rem; min-height: 5rem; color: #6d8075; font-size: .8rem; }
+.spinner { width: 1rem; height: 1rem; border: 2px solid #a5c1ad; border-top-color: #286548; border-radius: 50%; animation: spin .8s linear infinite; }
+.empty-state { display: grid; justify-items: center; gap: .5rem; padding: 2.5rem 1rem; border: 1px dashed #d5e2d9; border-radius: .8rem; color: #6d8075; text-align: center; }
+.empty-state > span { color: #6a9b79; font-size: 1.7rem; }
+.empty-state strong { color: #335646; font-size: .82rem; }
+.empty-state p { max-width: 22rem; margin: 0; font-size: .74rem; line-height: 1.5; }
+.notice { padding: .9rem; border-radius: .7rem; color: #9b3f36; background: #fff0ed; font-size: .78rem; line-height: 1.5; }
+.notice button { margin-left: .5rem; padding: 0; border: 0; color: #87392f; background: transparent; font: inherit; font-weight: 800; text-decoration: underline; cursor: pointer; }
+.phase-note { margin: 1.25rem 0 0; padding-top: 1rem; border-top: 1px solid #e9efeb; color: #87958c; font-size: .67rem; line-height: 1.55; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 480px) { .home-heading { align-items: center; } .logout-button { padding: .5rem .7rem; } .student-card { gap: .6rem; padding: .7rem; } .status { font-size: .58rem; } }

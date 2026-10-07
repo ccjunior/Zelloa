@@ -1098,6 +1098,12 @@ com rastreabilidade.
 
 # FASE 8 — ZELLOA FAMILY
 
+### Início antecipado autorizado
+
+Decisão do responsável: antecipar um recorte da Fase 8 para permitir validar o acesso do Guardian criado pela escola. O recorte inclui ativação do convite, login, sessão autenticada e página inicial com a identificação do responsável e a lista de alunos vinculados.
+
+Esse recorte não conclui a Fase 8 nem atende ao seu Gate. Catálogo, carrinho, checkout, pagamento, acompanhamento, histórico, repetição de pedidos e validação completa do PWA continuam pendentes e devem seguir as dependências e Gates definidos neste plano.
+
 # 70. Objetivo
 
 Construir a experiência completa do responsável.
@@ -1341,6 +1347,7 @@ O portal deverá permitir:
 - cadastrar nome, nome fantasia, identificador opcional, contato e timezone da instituição;
 - apresentar o resultado e o `TenantId` criado pela API;
 - convidar o administrador escolar inicial para uma instituição recém-cadastrada;
+- gerar novamente o convite do administrador escolar inicial enquanto a conta estiver pendente, invalidando o link anterior;
 - apresentar o link de ativação de uso único para entrega manual, sem registrá-lo em logs.
 
 A ativação da conta escolar continua no portal Zelloa School. A lista e edição de instituições ficam fora desta etapa enquanto não houver endpoints correspondentes definidos.
@@ -1349,7 +1356,7 @@ A ativação da conta escolar continua no portal Zelloa School. A lista e ediç�
 
 # 92. Gate — Fase 10
 
-O `PlatformAdmin` deverá conseguir entrar no portal, criar uma instituição e seu tenant, gerar o convite do `SchoolAdmin` inicial e copiar o link de ativação. O portal School deverá conseguir ativar essa conta. Outros perfis deverão ser impedidos de acessar as rotas administrativas. Build, lint e testes aplicáveis do novo projeto deverão passar.
+O `PlatformAdmin` deverá conseguir entrar no portal, criar uma instituição e seu tenant, gerar ou renovar o convite do `SchoolAdmin` inicial e copiar o link de ativação. A renovação deverá manter a conta e o tenant, invalidar o link anterior e conceder novo prazo de 24 horas. O portal School deverá conseguir ativar essa conta. Outros perfis deverão ser impedidos de acessar as rotas administrativas. Build, lint e testes aplicáveis do novo projeto deverão passar.
 
 ---
 
