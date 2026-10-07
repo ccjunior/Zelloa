@@ -1,0 +1,12 @@
+<section class="page-heading"><div><p class="eyebrow">VISÃO GERAL</p><h1>Olá, equipe da escola <span>👋</span></h1><p class="subheading">Acompanhe e organize os cadastros da sua instituição.</p></div><span class="date-chip">{{ school()?.tradeName || 'Sua instituição' }}</span></section>
+@if (errorMessage()) { <div class="alert error" role="alert">{{ errorMessage() }}</div> }
+<div class="metric-grid">
+  <article class="metric-card"><div class="metric-icon green">▦</div><span class="metric-label">Turmas cadastradas</span><strong>{{ classroomCount() }}</strong><span class="metric-foot">Estrutura acadêmica</span></article>
+  <article class="metric-card"><div class="metric-icon blue">♧</div><span class="metric-label">Alunos cadastrados</span><strong>{{ studentCount() }}</strong><span class="metric-foot">Vinculados às turmas</span></article>
+  <article class="metric-card"><div class="metric-icon amber">♡</div><span class="metric-label">Instituição</span><strong class="status-value">{{ school()?.isActive ? 'Ativa' : school() ? 'Inativa' : '—' }}</strong><span class="metric-foot">{{ school()?.timeZone || 'Dados da escola' }}</span></article>
+</div>
+<section class="section-card dashboard-actions"><div class="section-heading"><div><p class="eyebrow">COMECE POR AQUI</p><h2>Organize os cadastros</h2><p>Monte a estrutura escolar e convide os responsáveis.</p></div></div><div class="quick-links">
+  <a routerLink="/classrooms"><span class="quick-icon">▦</span><span><strong>Cadastre uma turma</strong><small>Defina nível, turno e ano letivo</small></span><b>→</b></a>
+  <a routerLink="/students"><span class="quick-icon">♧</span><span><strong>Cadastre um aluno</strong><small>Associe o aluno a uma turma</small></span><b>→</b></a>
+  <a routerLink="/guardians"><span class="quick-icon">♡</span><span><strong>Convide um responsável</strong><small>Crie acesso e vínculo com o aluno</small></span><b>→</b></a>
+</div></section>

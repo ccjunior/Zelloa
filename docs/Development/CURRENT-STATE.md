@@ -1,8 +1,8 @@
 # Zelloa — Current Development State
 
-**Last Updated:** 2026-10-06  
-**Current Phase:** Phase 5 — Payments
-**Phase Status:** IN PROGRESS — development-only simulated payment flow implemented; PSP selection and real sandbox integration remain pending
+**Last Updated:** 2026-10-07
+**Current Phase:** Phase 9 — Zelloa School (early registration scope)
+**Phase Status:** IN PROGRESS — owner-approved reordering for SchoolAdmin authentication and registration testing; Phases 5–8 remain incomplete/deferred
 **Last Completed Phase:** Phase 4 — Ordering
 **Last Completed Gate:** Gate — Phase 4
 
@@ -10,7 +10,7 @@
 
 ## 1. Current Objective
 
-Phase 4 — Ordering is complete and committed as `261d1da`. Its Gate is met: a valid order can be created without real payment integration, with financial values calculated and validated by the backend. Phase 5 currently provides a development-only simulated payment flow. It does not authorize PSP-specific integration or satisfy the real sandbox requirement; select a PSP before implementing that integration.
+Phase 4 — Ordering is complete and committed as `261d1da`. Its Gate is met: a valid order can be created without real payment integration, with financial values calculated and validated by the backend. The owner has deferred the remaining work in Phase 5 and authorized an early start on the School frontend registration subset in Phase 9. This does not complete or waive Phases 5–8 or the Phase 9 Gate.
 
 Phase 0 established the technical foundation; Phase 1 implemented authentication, authorization, and tenant context. Phase 2 completed school and academic records, guardian links, and invitations.
 
@@ -37,20 +37,20 @@ Available normative documentation:
 
 ## 3. Work In Progress
 
-Phase 3 is committed as `d3fc61b` (`feat: add tenant-scoped catalog management`). Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0` (`feat: implement school and academic phase`). Phase 4 is committed as `261d1da` (`feat: implement ordering phase`) and adds server-priced orders, item snapshots, unpaid-order cancellation, repeat-order revalidation, guardian order history, and SchoolAdmin-configured cutoffs by class shift. Phase 5 now has a persisted development simulation behind `IPaymentGateway`, with owner-scoped create/query/confirm/expire operations and no real PSP calls. No production payment provider has been integrated.
+Phase 3 is committed as `d3fc61b` (`feat: add tenant-scoped catalog management`). Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0` (`feat: implement school and academic phase`). Phase 4 is committed as `261d1da` (`feat: implement ordering phase`) and adds server-priced orders, item snapshots, unpaid-order cancellation, repeat-order revalidation, guardian order history, and SchoolAdmin-configured cutoffs by class shift. Phase 5 has a persisted development simulation behind `IPaymentGateway`, with owner-scoped create/query/confirm/expire operations and no real PSP calls. By owner decision, defer PSP selection and real payment integration until after the school presentation. No production payment provider has been integrated. Phase 9 has been authorized early for SchoolAdmin login/activation and academic-registration UI so the school can begin testing records. The initial frontend implementation is now in place; live registration against the API/database still needs a manual smoke test after the institution and SchoolAdmin account are provisioned.
 
 ---
 
 ## 4. Pending Work — Current Phase
 
-The development-only payment simulation is implemented behind `IPaymentGateway`. It persists payment and order/tenant ownership; supports simulated Pix charge creation, guardian-only query, and development-only simulated confirmation/expiration; uses `SimulatedConfirmed` without setting `ConfirmedAt` or moving the order to `Paid`; returns conspicuous simulation markers; and rejects startup if simulation is enabled outside `Development`. The endpoints are mapped only when `Payments:SimulationEnabled=true`; the Development settings enable it and base settings disable it. The Phase 5 Gate still requires PSP selection and a real Pix charge in provider homologation/sandbox; webhooks remain in Phase 6.
+Authorized current scope: School frontend for SchoolAdmin login/account activation and registration testing for classrooms, students, guardian invitations, and guardian-student links, using existing tenant-scoped APIs. Implemented in this session: responsive admin shell/navigation, dashboard, login and activation screens, classroom and student forms/lists, guardian invitation with one-time activation URL display and link retry, plus route protection for the SchoolAdmin role. The development-only payment simulation remains available for demonstration. Phases 5–8 are not complete; the full Phase 9 Gate, including catalog, orders, and cafeteria operation, remains pending.
 
 ---
 
 ## 5. Database State
 
-**Database:** PostgreSQL 17; Testcontainers and Compose connectivity validated; local Compose volume retained  
-**Latest Migration:** `DevelopmentPaymentSimulation`, following `OrderingFoundation`. Migration generated; `dotnet ef migrations has-pending-model-changes` reports no pending model changes. This migration has not yet been applied to a database.
+**Database:** PostgreSQL 17 Compose container is healthy; local Compose volume retained. All seven migrations through `DevelopmentPaymentSimulation` are applied. The local database has 1 `PlatformAdmin`, 4 roles, and no school or `SchoolAdmin` records. A manual role change that left the bootstrap account as a tenantless `SchoolAdmin` was reverted to `PlatformAdmin`; API startup and `/health` were verified afterward.
+**Latest Migration:** `DevelopmentPaymentSimulation`, following `OrderingFoundation`. Migration applied to the current local database; `dotnet ef migrations has-pending-model-changes` previously reported no pending model changes.
 
 ---
 
@@ -67,11 +67,11 @@ The development-only payment simulation is implemented behind `IPaymentGateway`.
 **Angular Workspace:** Initialized under `web/`; Angular 22.2.1
 
 **Zelloa Family:** Initialized with routing, HTTP client, PWA, and base layout  
-**Zelloa School:** Initialized with routing, HTTP client, and base layout
+**Zelloa School:** Early Phase 9 registration interface implemented: login/activation, protected admin shell, dashboard, classroom/student registration, and guardian invitation/link workflows. Development server: `npm start -- zelloa-school --port 4201` (matches the configured local invitation URL and API CORS origin). The Angular development environment targets the local .NET HTTP profile at port 5027; Docker Compose maps its API to port 8080.
 
-**Lint:** PASS — all 6 projects  
-**Tests:** PASS — 8 tests across both apps and 4 libraries  
-**Build:** PASS — Family and School production builds
+**School Lint:** PASS — `npm run ng -- lint zelloa-school`
+**School Tests:** PASS — 2 tests
+**School Build:** PASS — `npm run build:school` (production)
 
 ---
 
@@ -85,7 +85,7 @@ The development-only payment simulation is implemented behind `IPaymentGateway`.
 
 ## 9. Known Issues
 
-The hosted GitHub Actions workflow has not yet been verified after Git was configured. Invitation activation UI is outside Phase 2; configure `InvitationUrls__Family` and `InvitationUrls__School` to valid frontend activation routes when those routes are implemented. Invitation URLs are returned once for manual delivery and must not be published or logged.
+The hosted GitHub Actions workflow has not yet been verified after Git was configured. A `PlatformAdmin` now exists in the local database, but there is no school or `SchoolAdmin`. Use the PlatformAdmin API endpoints to create a school and invite its first SchoolAdmin; the PlatformAdmin account cannot log in to the School panel. A browser capture showed login `204`, `/api/me` `200`, and logout `204`, confirming the role rejection. The login now reports that rejection without navigating away, and async screen state uses Angular signals so updates render in the zoneless app. Ensure `InvitationUrls__School` points to `/activate-invitation` on the School frontend (port 4201 locally). Guardian invitation URLs are returned once for manual delivery and must not be published or logged. The School UI has not yet been manually smoke-tested against a SchoolAdmin account.
 
 ### Technical Debt
 
@@ -96,13 +96,13 @@ The hosted GitHub Actions workflow has not yet been verified after Git was confi
 
 ## 10. Blockers
 
-No open blocker remains in Phase 4. PSP selection is intentionally deferred until after the simulated flow is presented and the school confirms its preferred/current provider. Provider-specific implementation requires that decision; a real PSP sandbox charge remains required for the Phase 5 Gate.
+Phase 5 remains deferred until after the school presentation/provider discussion. Phase 9 registration work is an approved early subset; its full Gate is not yet in scope. Cafeteria UI remains dependent on Phase 7 order operations and the preceding payment/webhook flow.
 
 ---
 
 ## 11. Decisions Made During Development
 
-Owner-approved decisions: ASP.NET Core Identity with cookie sessions; one tenant per institutional account, with multiple accounts per tenant; school owns student registration and initiates guardian access; guardian context selection across schools is future scope; PlatformAdmin invites the initial SchoolAdmin, and SchoolAdmin invites Guardians via manually delivered, single-use activation links expiring after 24 hours; product image uploads/storage remain open as technical debt TD-001, with optional HTTPS URLs supported for now; the development-only payment simulation is implemented, with removal after real PSP homologation tracked by TD-002. Guardians do not select a delivery date, and order cutoffs are configured per class shift by the school.
+Owner-approved decisions: ASP.NET Core Identity with cookie sessions; one tenant per institutional account, with multiple accounts per tenant; school owns student registration and initiates guardian access; guardian context selection across schools is future scope; PlatformAdmin invites the initial SchoolAdmin, and SchoolAdmin invites Guardians via manually delivered, single-use activation links expiring after 24 hours; product image uploads/storage remain open as technical debt TD-001, with optional HTTPS URLs supported for now; retain the development-only payment simulation for the school presentation and defer PSP selection/integration until the school identifies its preferred provider; start the Phase 9 SchoolAdmin authentication/registration subset early for school data-entry testing; remove the application simulation after real PSP homologation under TD-002. Guardians do not select a delivery date, and order cutoffs are configured per class shift by the school.
 
 Architectural and product decisions already defined in the normative documentation must not be duplicated here.
 
@@ -112,19 +112,19 @@ Only record decisions made during implementation that are relevant for future de
 
 ## 12. Uncommitted / Interrupted Work
 
-Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation is committed as `8db6093`. This session has uncommitted documentation updates recording the presentation and PSP-selection sequence. The migration was generated but not applied to a database. No tests were run after the Phase 5 implementation.
+Git is initialized on `main` tracking `origin/main`; remote `origin` is configured. Phase 1 is committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation is committed as `8db6093`; presentation and PSP-selection sequencing is documented in `f791486`. Phase 9 frontend/docs changes are being committed separately from pre-existing local configuration changes in `src/Zelloa.Api/Zelloa.Api.csproj`, `src/Zelloa.Api/appsettings.Development.json`, and `web/angular.json`. All seven migrations, including the development payment migration, are applied locally. No tests were run after the Phase 5 backend implementation.
 
 ---
 
 ## 13. Next Recommended Task
 
-Present the development simulation to the school and confirm which bank/provider it uses and prefers. Record the PSP decision before provider-specific implementation. The Phase 5 Gate still requires a real Pix charge and payment query in that PSP's homologation environment; after the real integration is validated, remove the application simulation tracked by TD-002. Run and resolve the applicable automated tests before considering Phase 5 complete.
+Use the existing local PlatformAdmin credentials to create a school and invite its first SchoolAdmin through the API. Activate the invitation and manually smoke-test SchoolAdmin login, classroom/student registration, guardian invitation, and guardian-student linking against the running API/database. Capture integration/API issues before expanding this early Phase 9 scope. Preserve tenant isolation and antiforgery protections. Defer catalog, orders, and cafeteria screens until their planned dependencies are available; do not mark Phases 5–8 or the Phase 9 Gate complete.
 
 ---
 
 ## 14. Session Handoff
 
-Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`. Phase 3 provides tenant-scoped catalog and records deferred image upload/managed storage as TD-001. Phase 4 reached its Gate with order creation, server-side price calculation, snapshots, unpaid cancellation, repeat revalidation, guardian history, per-shift school-local cutoffs, and the OrderingFoundation migration. The guardian does not choose a delivery date. Phase 5 development simulation is available only in `Development`, uses a `Payments` migration, and does not mark orders paid. Release build passes with zero warnings; EF reports no pending model changes. Automated tests were not run after these changes, and the migration has not been applied to a database. Keep the simulator for the school presentation; ask the school which provider it uses and prefers before selecting the PSP. A PSP sandbox is a separate homologation environment and is still required for the Phase 5 Gate. Remove the application simulation after real PSP homologation is validated (TD-002); automated-test fakes remain separate.
+Phase 1 was completed and committed as `b6e3f45`; Phase 2 as `7421fa0`; Phase 3 as `d3fc61b`; Phase 4 as `261d1da`; the development payment simulation as `8db6093`; presentation and PSP-selection sequence as `f791486`. Phase 3 provides tenant-scoped catalog and records deferred image upload/managed storage as TD-001. Phase 4 reached its Gate with order creation, server-side price calculation, snapshots, unpaid cancellation, repeat revalidation, guardian history, per-shift school-local cutoffs, and the OrderingFoundation migration. Phase 5 development simulation is available only in `Development`; real PSP selection/integration is deferred. The owner authorized an early Phase 9 subset for SchoolAdmin authentication and registration testing. The responsive School UI is implemented and its production build, School lint, and two School unit tests pass. All migrations are applied locally; one PlatformAdmin exists, but there is no school or SchoolAdmin yet. Next, create a school and invite the SchoolAdmin via the API, then run manual API-backed registration smoke tests. This does not mark Phases 5–8 or the Phase 9 Gate complete; defer school catalog, orders, and cafeteria operation until their dependencies are satisfied.
 
 When development begins, update this document whenever meaningful progress is made and before ending the session.
 

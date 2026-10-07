@@ -1,0 +1,41 @@
+<main class="activation-page">
+  <a class="brand" routerLink="/login"><span class="brand-mark">z</span> zelloa<span class="brand-light"> escola</span></a>
+
+  <section class="activation-card" aria-labelledby="activation-title">
+    @if (activated()) {
+      <div class="success-mark" aria-hidden="true">✓</div>
+      <p class="eyebrow">CONTA ATIVADA</p>
+      <h1 id="activation-title">Acesso pronto.</h1>
+      <p class="intro">Sua conta foi ativada. Entre para acessar o ambiente da escola.</p>
+      <button class="primary-button" type="button" (click)="goToLogin()">Ir para o login <span>→</span></button>
+    } @else {
+      <p class="eyebrow">CONVITE DA ESCOLA</p>
+      <h1 id="activation-title">Crie sua senha de acesso.</h1>
+      <p class="intro">O convite é individual e expira em 24 horas. A senha será usada para entrar no Zelloa Escola.</p>
+
+      @if (invalidLink) {
+        <div class="alert error" role="alert">Este link está incompleto. Use o link completo enviado pela escola ou solicite um novo convite.</div>
+      } @else {
+        <div class="email-row"><span>E-mail do convite</span><strong>{{ email }}</strong></div>
+        @if (errorMessage()) { <div class="alert error" role="alert">{{ errorMessage() }}</div> }
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <label for="password">Nova senha</label>
+          <input id="password" type="password" formControlName="password" autocomplete="new-password" placeholder="Crie uma senha segura" />
+          <div class="requirements" [class.requirements-error]="form.controls.password.invalid && form.controls.password.touched">
+            Use pelo menos 12 caracteres, com maiúscula, minúscula, número, símbolo e 4 caracteres diferentes.
+          </div>
+          <label for="confirmation">Confirme a senha</label>
+          <input id="confirmation" type="password" formControlName="confirmation" autocomplete="new-password" placeholder="Digite a senha novamente" />
+          @if (form.hasError('passwordsMismatch') && form.controls.confirmation.touched) {
+            <span class="field-error">As senhas não coincidem.</span>
+          }
+          <button class="primary-button" type="submit" [disabled]="form.invalid || loading()">
+            @if (loading()) { Ativando conta... } @else { Ativar minha conta <span>→</span> }
+          </button>
+        </form>
+      }
+    }
+    <a class="back-link" routerLink="/login">Voltar para o login</a>
+  </section>
+</main>

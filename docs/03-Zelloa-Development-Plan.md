@@ -1246,6 +1246,12 @@ Login
 
 Construir interface operacional da escola.
 
+### Início antecipado autorizado
+
+Decisão do responsável: antecipar o início da Fase 9 para viabilizar testes de cadastro pela escola. O primeiro recorte inclui autenticação/ativação do `SchoolAdmin` e interfaces administrativas para turmas, alunos, convite de responsáveis e vínculo responsável-aluno, usando as APIs já implementadas.
+
+Essa reordenação não marca as Fases 5 a 8 como concluídas nem atende ao Gate da Fase 9. Catálogo, pedidos e operação da cantina permanecem sujeitos às dependências e Gates correspondentes; a cantina, em especial, depende do fluxo de operações da Fase 7.
+
 ---
 
 # 83. Autenticação

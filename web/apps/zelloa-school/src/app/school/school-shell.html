@@ -1,0 +1,18 @@
+<div class="admin-layout">
+  @if (menuOpen) { <button class="backdrop" type="button" aria-label="Fechar menu" (click)="closeMenu()"></button> }
+  <aside class="sidebar" [class.open]="menuOpen">
+    <a class="brand" routerLink="/" (click)="closeMenu()"><span class="brand-mark">z</span><span>zelloa <small>escola</small></span></a>
+    <div class="school-label">PAINEL DA INSTITUIÇÃO</div>
+    <nav aria-label="Navegação principal">
+      <a routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" (click)="closeMenu()"><span>⌂</span> Visão geral</a>
+      <a routerLink="/classrooms" routerLinkActive="active" (click)="closeMenu()"><span>▦</span> Turmas</a>
+      <a routerLink="/students" routerLinkActive="active" (click)="closeMenu()"><span>♧</span> Alunos</a>
+      <a routerLink="/guardians" routerLinkActive="active" (click)="closeMenu()"><span>♡</span> Responsáveis</a>
+    </nav>
+    <div class="sidebar-bottom"><div class="user-avatar">{{ auth.user()?.displayName?.charAt(0) ?? 'E' }}</div><div class="user-copy"><strong>{{ auth.user()?.displayName ?? 'Equipe escolar' }}</strong><span>Administrador</span></div><button type="button" class="logout" aria-label="Sair" title="Sair" (click)="logout()">↗</button></div>
+  </aside>
+  <section class="workspace">
+    <header class="topbar"><button type="button" class="menu-toggle" aria-label="Abrir menu" (click)="menuOpen = true">☰</button><div class="breadcrumb">Zelloa <span>/</span> Escola</div><div class="top-user"><span class="online-dot"></span> Ambiente da instituição</div></header>
+    <main class="page-content"><router-outlet /></main>
+  </section>
+</div>
