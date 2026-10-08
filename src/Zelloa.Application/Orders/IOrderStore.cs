@@ -14,6 +14,9 @@ public interface IOrderStore
     Task<Order?> GetOrderForGuardianAsync(Guid orderId, Guid guardianId, CancellationToken cancellationToken);
     Task<Order?> GetOrderAsync(Guid orderId, CancellationToken cancellationToken);
     Task<IReadOnlyList<Order>> GetOrdersForGuardianAsync(Guid guardianId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Order>> GetOrdersForSchoolAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyDictionary<Guid, string>> GetStudentNamesAsync(
+        IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken);
     void Add(Order order);
     void Add(OrderCutoff cutoff);
     Task SaveChangesAsync(CancellationToken cancellationToken);
@@ -27,6 +30,9 @@ public sealed record OrderItemResponse(Guid ProductId, string ProductName, decim
 public sealed record OrderResponse(Guid OrderId, Guid StudentId, string ClassroomName, string Shift,
     DateOnly OperationalDate, string Status, DateTimeOffset CreatedAt,
     IReadOnlyList<OrderItemResponse> Items, decimal Total);
+public sealed record SchoolOrderResponse(Guid OrderId, Guid StudentId, string StudentName,
+    string ClassroomName, string Shift, DateOnly OperationalDate, string Status,
+    DateTimeOffset CreatedAt, IReadOnlyList<OrderItemResponse> Items, decimal Total);
 
 public sealed class OrderRuleException(string code, string message) : Exception(message)
 {

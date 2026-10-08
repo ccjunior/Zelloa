@@ -33,6 +33,10 @@ public static class OrderEndpoints
                 Results.Ok(await operations.ListMineAsync(ct)))
             .RequireAuthorization("CanCreateOrder").WithTags("Orders").WithName("ListMyOrders");
 
+        endpoints.MapGet("/api/school/orders", async (OrderOperations operations, CancellationToken ct) =>
+                Results.Ok(await operations.ListForSchoolAsync(ct)))
+            .RequireAuthorization("CanManageSchool").WithTags("School Orders").WithName("ListSchoolOrders");
+
         var settings = endpoints.MapGroup("/api/school/order-cutoffs").WithTags("School Orders");
         settings.MapGet("", async (OrderOperations operations, CancellationToken ct) =>
                 Results.Ok(await operations.GetCutoffsAsync(ct)))

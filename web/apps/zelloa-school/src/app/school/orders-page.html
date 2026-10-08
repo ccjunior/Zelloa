@@ -1,0 +1,88 @@
+<div class="orders-page">
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">ACOMPANHAMENTO</p>
+      <h1>Pedidos</h1>
+      <p class="subheading">Consulte os pedidos recentes da instituição e confira os itens enviados pelas famílias.</p>
+    </div>
+    <span class="count-chip">{{ orders().length }} pedidos recentes</span>
+  </section>
+
+  <aside class="validation-note" role="note">
+    <span class="note-icon" aria-hidden="true">i</span>
+    <div>
+      <strong>Visualização temporária para validação</strong>
+      <p>Pedidos aguardando pagamento aparecem aqui somente para consulta. Eles não estão liberados para preparo nem fazem parte da fila da cantina.</p>
+    </div>
+  </aside>
+
+  @if (errorMessage()) {
+    <div class="alert error" role="alert">{{ errorMessage() }} <button type="button" (click)="load()">Tentar novamente</button></div>
+  }
+
+  <section class="section-card order-list" aria-labelledby="orders-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">ÚLTIMAS ATIVIDADES</p>
+        <h2 id="orders-title">Pedidos da escola</h2>
+        <p>Até 100 pedidos mais recentes. {{ awaitingPaymentCount() }} aguardando pagamento.</p>
+      </div>
+      <button class="refresh-button" type="button" [disabled]="loading()" (click)="load()">{{ loading() ? 'Atualizando…' : 'Atualizar' }}</button>
+    </div>
+
+    <div class="order-filters">
+      <label class="search-control">
+        <span class="visually-hidden">Buscar por aluno, turma ou turno</span>
+        <span aria-hidden="true">⌕</span>
+        <input type="search" maxlength="100" placeholder="Buscar aluno, turma ou turno" [value]="searchText()" (input)="searchText.set($any($event.target).value)" />
+      </label>
+      <label class="status-control">
+        <span class="visually-hidden">Filtrar por status</span>
+        <select [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)">
+          <option value="">Todos os status</option>
+          <option value="AwaitingPayment">Aguardando pagamento</option>
+          <option value="Paid">Pago</option>
+          <option value="Preparing">Em preparo</option>
+          <option value="Ready">Pronto</option>
+          <option value="Delivered">Entregue</option>
+          <option value="Cancelled">Cancelado</option>
+          <option value="PaymentExpired">Pagamento expirado</option>
+        </select>
+      </label>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-state" aria-live="polite">Carregando pedidos…</div>
+    } @else if (filteredOrders().length === 0) {
+      <div class="empty-state">
+        <span>▣</span>
+        <strong>{{ orders().length === 0 ? 'Nenhum pedido recente' : 'Nenhum pedido encontrado' }}</strong>
+        <small>{{ orders().length === 0 ? 'Quando as famílias criarem pedidos, eles aparecerão aqui.' : 'Ajuste a busca ou o filtro de status.' }}</small>
+      </div>
+    } @else {
+      <div class="order-cards">
+        @for (order of filteredOrders(); track order.orderId) {
+          <article class="order-card" [class.awaiting-payment]="order.status === 'AwaitingPayment'">
+            <header class="order-card-header">
+              <div class="student-heading">
+                <span class="student-avatar" aria-hidden="true">{{ order.studentName.charAt(0) }}</span>
+                <div><h3>{{ order.studentName }}</h3><p>{{ order.classroomName }} · {{ order.shift }}</p></div>
+              </div>
+              <span class="order-status" [class.pending]="statusClass(order.status) === 'pending'" [class.closed]="statusClass(order.status) === 'closed'">{{ statusLabel(order.status) }}</span>
+            </header>
+            <div class="order-meta"><span>Pedido em {{ order.createdAt | date:'dd/MM/yyyy, HH:mm' }}</span><span>Dia operacional: {{ order.operationalDate | date:'dd/MM/yyyy':'UTC' }}</span></div>
+            <ul class="order-items" aria-label="Itens do pedido">
+              @for (item of order.items; track item.productId) {
+                <li><span><strong>{{ item.quantity }}×</strong> {{ item.productName }}</span><span>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></li>
+              }
+            </ul>
+            <footer class="order-total"><span>Total</span><strong>{{ order.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong></footer>
+            @if (order.status === 'AwaitingPayment') {
+              <p class="pending-reminder">Pagamento ainda não confirmado. Não iniciar preparo.</p>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
+</div>

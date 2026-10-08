@@ -622,6 +622,17 @@ Request: `email`. A operação só aceita contas pendentes com papel `SchoolAdmi
 
 ---
 
+# 31.2 Consultar pedidos recentes da escola
+
+```text
+GET /api/school/orders
+```
+
+Autorização: `CanManageSchool`. O backend retorna até os 100 pedidos mais recentes do tenant autenticado, com aluno, turma, turno, data operacional, status, itens, total e horário de criação. O cliente não informa `TenantId`.
+
+Este endpoint administrativo é somente para consulta. Durante a validação da funcionalidade, pode incluir pedidos `AwaitingPayment`, identificados como aguardando pagamento. Esse status não autoriza preparo e não deve entrar na fila operacional da cantina (`GET /api/cafeteria/orders`). Não há ações de pagamento ou mudança de status nesta tela.
+
+---
 # 32. Consultar Escola Atual
 
 ```text

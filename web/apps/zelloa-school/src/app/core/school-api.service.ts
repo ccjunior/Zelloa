@@ -95,3 +95,16 @@ export interface GuardianInvitation {
   activationUrl: string;
   expiresAt: string;
 }
+
+export interface SchoolOrder {
+  orderId: string;
+  studentId: string;
+  studentName: string;
+  classroomName: string;
+  shift: string;
+  operationalDate: string;
+  status: string;
+  createdAt: string;
+  items: { productId: string; productName: string; unitPrice: number; quantity: number; subtotal: number }[];
+  total: number;
+}

@@ -52,6 +52,16 @@ public sealed class OrderStore(ZelloaDbContext dbContext) : IOrderStore
             .Where(order => order.GuardianId == guardianId)
             .OrderByDescending(order => order.CreatedAt).Take(100).ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Order>> GetOrdersForSchoolAsync(CancellationToken cancellationToken) =>
+        await dbContext.Orders.AsNoTracking().Include(order => order.Items)
+            .OrderByDescending(order => order.CreatedAt).Take(100).ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyDictionary<Guid, string>> GetStudentNamesAsync(
+        IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken) =>
+        await dbContext.Students.AsNoTracking()
+            .Where(student => studentIds.Contains(student.Id))
+            .ToDictionaryAsync(student => student.Id, student => student.Name, cancellationToken);
+
     public void Add(Order order) => dbContext.Orders.Add(order);
     public void Add(OrderCutoff cutoff) => dbContext.OrderCutoffs.Add(cutoff);
     public Task SaveChangesAsync(CancellationToken cancellationToken) => dbContext.SaveChangesAsync(cancellationToken);

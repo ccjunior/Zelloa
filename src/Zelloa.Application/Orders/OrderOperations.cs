@@ -107,6 +107,22 @@ public sealed class OrderOperations(
         return (await store.GetOrdersForGuardianAsync(guardianId, cancellationToken)).Select(ToResponse).ToArray();
     }
 
+    public async Task<IReadOnlyList<SchoolOrderResponse>> ListForSchoolAsync(CancellationToken cancellationToken)
+    {
+        if (!currentUser.Roles.Contains(ZelloaRoles.SchoolAdmin)) return [];
+        var orders = await store.GetOrdersForSchoolAsync(cancellationToken);
+        var studentNames = await store.GetStudentNamesAsync(
+            orders.Select(order => order.StudentId).Distinct().ToArray(), cancellationToken);
+        return orders.Select(order => new SchoolOrderResponse(
+            order.Id, order.StudentId,
+            studentNames.GetValueOrDefault(order.StudentId, "Aluno não identificado"),
+            order.ClassroomName, order.Shift, order.OperationalDate, order.Status.ToString(),
+            order.CreatedAt,
+            order.Items.Select(item => new OrderItemResponse(item.ProductId, item.ProductName,
+                item.UnitPrice, item.Quantity, item.Subtotal)).ToArray(),
+            order.Total)).ToArray();
+    }
+
     private static OrderResponse ToResponse(Order order) => new(order.Id, order.StudentId, order.ClassroomName,
         order.Shift, order.OperationalDate, order.Status.ToString(), order.CreatedAt,
         order.Items.Select(item => new OrderItemResponse(item.ProductId, item.ProductName,

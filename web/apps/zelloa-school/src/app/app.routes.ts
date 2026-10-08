@@ -10,6 +10,7 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', loadComponent: () => import('./school/dashboard-page').then(module => module.DashboardPage) },
       { path: 'classrooms', loadComponent: () => import('./school/classrooms-page').then(module => module.ClassroomsPage) },
+      { path: 'orders', loadComponent: () => import('./school/orders-page').then(module => module.OrdersPage) },
       { path: 'students', loadComponent: () => import('./school/students-page').then(module => module.StudentsPage) },
       { path: 'guardians', loadComponent: () => import('./school/guardians-page').then(module => module.GuardiansPage) },
     ],

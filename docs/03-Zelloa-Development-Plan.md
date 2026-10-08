@@ -1262,6 +1262,8 @@ Decisão do responsável: antecipar o início da Fase 9 para viabilizar testes d
 
 Essa reordenação não marca as Fases 5 a 8 como concluídas nem atende ao Gate da Fase 9. Catálogo, pedidos e operação da cantina permanecem sujeitos às dependências e Gates correspondentes; a cantina, em especial, depende do fluxo de operações da Fase 7.
 
+Etapa autorizada: consulta SchoolAdmin dos 100 pedidos mais recentes do tenant atual, em modo somente leitura, incluindo temporariamente `AwaitingPayment` para validar a criação e a visualização. A tela deve identificar esse status como aguardando pagamento e avisar que ele não está liberado para preparo. Esta consulta administrativa não é a fila da cantina nem permite alterar status, iniciar preparo ou confirmar pagamento.
+
 ---
 
 # 83. Autenticação
