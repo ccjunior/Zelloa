@@ -6,6 +6,7 @@ using Zelloa.Infrastructure.Persistence;
 using Zelloa.Application.SchoolAcademic;
 using Zelloa.Application.Orders;
 using Zelloa.Application.Payments;
+using Zelloa.Infrastructure.Payments;
 
 namespace Zelloa.Infrastructure;
 
@@ -23,6 +24,22 @@ public static class DependencyInjection
         services.AddScoped<ISchoolAcademicStore, SchoolAcademicStore>();
         services.AddScoped<IOrderStore, OrderStore>();
         services.AddScoped<IPaymentStore, PaymentStore>();
+        services.AddScoped<IPaymentGatewayResolver, PaymentGatewayResolver>();
+        services.AddScoped<DevelopmentSimulationPaymentGateway>();
+        services.AddScoped<AsaasSandboxPaymentGateway>();
+        services.AddSingleton(_ =>
+        {
+            var client = new HttpClient
+            {
+                BaseAddress = new Uri("https://api-sandbox.asaas.com/v3/"),
+                Timeout = TimeSpan.FromSeconds(20)
+            };
+            var apiKey = configuration["Payments:Asaas:ApiKey"];
+            if (!string.IsNullOrWhiteSpace(apiKey))
+                client.DefaultRequestHeaders.Add("access_token", apiKey);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Zelloa/1.0");
+            return client;
+        });
 
         return services;
     }

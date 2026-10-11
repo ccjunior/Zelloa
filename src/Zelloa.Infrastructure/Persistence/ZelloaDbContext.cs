@@ -237,7 +237,7 @@ public sealed class ZelloaDbContext(
             entity.Property(payment => payment.Currency).HasMaxLength(3).IsRequired();
             entity.Property(payment => payment.Status).HasConversion<string>().HasMaxLength(32).IsRequired();
             entity.Property(payment => payment.PixCopyPaste).HasMaxLength(1000).IsRequired();
-            entity.Property(payment => payment.QrCodeReference).HasMaxLength(2048).IsRequired();
+            entity.Property(payment => payment.QrCodeReference).HasColumnType("text").IsRequired();
             entity.HasIndex(payment => new { payment.TenantId, payment.OrderId, payment.CreatedAt });
             entity.HasIndex(payment => new { payment.TenantId, payment.Provider, payment.ExternalTransactionId })
                 .IsUnique();

@@ -6,14 +6,14 @@ namespace Zelloa.Application.Payments;
 
 public sealed class PaymentOperations(
     IPaymentStore store,
-    IPaymentGateway gateway,
+    IPaymentGatewayResolver gatewayResolver,
     ICurrentUser currentUser,
     ITenantContext tenantContext,
     TimeProvider timeProvider)
 {
     private static readonly TimeSpan ChargeLifetime = TimeSpan.FromMinutes(30);
 
-    public async Task<PaymentResponse> CreateSimulatedPixChargeAsync(Guid orderId,
+    public async Task<PaymentResponse> CreatePixChargeAsync(Guid orderId,
         CancellationToken cancellationToken)
     {
         if (currentUser.UserId is not { } guardianId)
@@ -29,19 +29,31 @@ public sealed class PaymentOperations(
         if (pending is not null && now < pending.ExpiresAt) return ToResponse(pending);
         if (pending is not null)
         {
-            pending.SimulateExpiration(now);
+            if (pending.IsSimulated)
+            {
+                pending.SimulateExpiration(now);
+            }
+            else
+            {
+                var existingGateway = gatewayResolver.Resolve(pending.Provider);
+                var providerStatus = await existingGateway.GetPaymentStatusAsync(
+                    pending.ExternalTransactionId, cancellationToken);
+                if (providerStatus is not ("OVERDUE" or "DELETED" or "EXPIRED"))
+                    throw new PaymentRuleException("PaymentStillPending",
+                        "A cobrança anterior ainda consta ativa no provedor.");
+                pending.ExpireFromProvider(now);
+            }
             await store.SaveChangesAsync(cancellationToken);
         }
 
         var expiresAt = now.Add(ChargeLifetime);
         var paymentId = Guid.NewGuid();
+        var gateway = gatewayResolver.ResolveConfigured();
         var charge = await gateway.CreatePixChargeAsync(paymentId, order.Total, expiresAt, cancellationToken);
-        if (!charge.IsSimulated)
-            throw new InvalidOperationException("Development simulation gateway returned a real charge.");
 
         var payment = new Payment(paymentId, tenantContext.TenantId, order.Id, charge.Provider,
-            charge.ExternalTransactionId, order.Total, now, expiresAt, charge.PixCopyPaste,
-            charge.QrCodeReference, isSimulated: true);
+            charge.ExternalTransactionId, order.Total, now, charge.ExpiresAt, charge.PixCopyPaste,
+            charge.QrCodeReference, isSimulated: charge.IsSimulated);
         store.Add(payment);
         await store.SaveChangesAsync(cancellationToken);
         return ToResponse(payment);
@@ -52,7 +64,12 @@ public sealed class PaymentOperations(
     {
         if (currentUser.UserId is not { } guardianId) return null;
         var payment = await store.GetForGuardianAsync(paymentId, guardianId, cancellationToken);
-        return payment is null ? null : ToResponse(payment);
+        if (payment is null) return null;
+        var gateway = gatewayResolver.Resolve(payment.Provider);
+        var providerStatus = payment.IsSimulated
+            ? payment.Status.ToString()
+            : await gateway.GetPaymentStatusAsync(payment.ExternalTransactionId, cancellationToken);
+        return ToResponse(payment, providerStatus);
     }
 
     public async Task<PaymentResponse?> SimulateConfirmationAsync(Guid paymentId,
@@ -96,15 +113,16 @@ public sealed class PaymentOperations(
         return store.GetForGuardianAsync(paymentId, guardianId, cancellationToken);
     }
 
-    private static PaymentResponse ToResponse(Payment payment) => new(
+    private static PaymentResponse ToResponse(Payment payment, string? providerStatus = null) => new(
         payment.Id, payment.OrderId, payment.Amount, payment.Currency, payment.Status.ToString(),
         payment.PixCopyPaste, payment.QrCodeReference, payment.ExpiresAt, payment.ConfirmedAt,
-        payment.IsSimulated, payment.SimulatedAt);
+        payment.IsSimulated, payment.SimulatedAt, providerStatus);
 }
 
 public sealed record PaymentResponse(Guid PaymentId, Guid OrderId, decimal Amount, string Currency,
     string Status, string PixCopyPaste, string QrCode, DateTimeOffset ExpiresAt,
-    DateTimeOffset? ConfirmedAt, bool IsSimulated, DateTimeOffset? SimulatedAt);
+    DateTimeOffset? ConfirmedAt, bool IsSimulated, DateTimeOffset? SimulatedAt,
+    string? ProviderStatus);
 
 public sealed class PaymentRuleException(string code, string message) : Exception(message)
 {

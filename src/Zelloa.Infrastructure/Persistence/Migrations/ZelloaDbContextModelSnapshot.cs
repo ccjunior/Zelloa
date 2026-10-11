@@ -507,8 +507,7 @@ namespace Zelloa.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("QrCodeReference")
                         .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("SimulatedAt")
                         .HasColumnType("timestamp with time zone");

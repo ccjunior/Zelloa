@@ -14,6 +14,10 @@ public sealed class DevelopmentSimulationPaymentGateway : IPaymentGateway
             $"SIM-{reference}",
             $"SIMULACAO-ZELLOA-{reference}",
             $"SIMULATED://PIX/{reference}",
+            expiresAt,
             IsSimulated: true));
     }
+
+    public Task<string> GetPaymentStatusAsync(string externalTransactionId,
+        CancellationToken cancellationToken) => Task.FromResult("SIMULATED_PENDING");
 }

@@ -804,7 +804,7 @@ Antes de codificar:
 
 Registrar decisão técnica.
 
-Para o piloto, manter o gateway de simulação em desenvolvimento para apresentar o fluxo à escola. Depois da apresentação, confirmar com a escola qual banco/provedor já utiliza e considerar essa informação na seleção do PSP. Não iniciar código específico de PSP antes dessa decisão. A simulação da aplicação não é o sandbox/homologação de um PSP; o Gate desta fase continua exigindo cobrança real em homologação.
+Para a apresentação, o proprietário autorizou em 2026-10-11 um adapter Asaas restrito ao Sandbox, sem selecionar o PSP de produção. Banco do Brasil permanece em standby; após a apresentação, confirmar com a escola qual banco/provedor utiliza e prefere antes de decidir produção. O adapter de demonstração deverá ser selecionável pela factory/resolver de gateways, sem espalhar a seleção pela Application. Credenciais Sandbox ficam fora do código/Git. O adapter inicial desta fase cobre Pix; cartão e split dependem de fluxo de checkout e definições comerciais separados, sem presumir percentual ou carteira recebedora. O escopo de produção inicial continua Pix conforme a especificação de produto. Webhooks, confirmação financeira e staging seguem fora desta etapa. A simulação da aplicação continua distinta do Sandbox do PSP.
 
 ---
 

@@ -7,16 +7,16 @@ namespace Zelloa.Api.Payments;
 
 public static class PaymentEndpoints
 {
-    public static IEndpointRouteBuilder MapDevelopmentPaymentEndpoints(
-        this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapPaymentEndpoints(
+        this IEndpointRouteBuilder endpoints, bool includeSimulationOperations)
     {
-        var orders = endpoints.MapGroup("/api/orders").WithTags("Development Payments");
+        var orders = endpoints.MapGroup("/api/orders").WithTags("Payments");
         orders.MapPost("/{orderId:guid}/payments/pix", async (Guid orderId,
                 PaymentOperations operations, CancellationToken ct) =>
-                await RunAsync(() => operations.CreateSimulatedPixChargeAsync(orderId, ct), created: true))
+                await RunAsync(() => operations.CreatePixChargeAsync(orderId, ct), created: true))
             .RequireAuthorization("CanCreateOrder")
             .AddEndpointFilter<AntiforgeryEndpointFilter>()
-            .WithName("CreateDevelopmentPixCharge");
+            .WithName("CreatePixCharge");
 
         endpoints.MapGet("/api/payments/{paymentId:guid}", async (Guid paymentId,
                 PaymentOperations operations, CancellationToken ct) =>
@@ -26,22 +26,25 @@ public static class PaymentEndpoints
             })
             .RequireAuthorization(policy => policy.RequireRole(ZelloaRoles.Guardian))
             .WithTags("Payments")
-            .WithName("GetDevelopmentPayment");
+            .WithName("GetPayment");
 
-        var simulation = endpoints.MapGroup("/api/development/payments")
-            .WithTags("Development Payment Simulation")
-            .RequireAuthorization("CanCreateOrder")
-            .AddEndpointFilter<AntiforgeryEndpointFilter>();
-        simulation.MapPost("/{paymentId:guid}/confirm", async (Guid paymentId,
-                PaymentOperations operations, CancellationToken ct) =>
-                await RunAsync(async () => await operations.SimulateConfirmationAsync(paymentId, ct)
-                    ?? throw new PaymentRuleException("PaymentNotFound", "Pagamento não encontrado.")))
-            .WithName("SimulatePaymentConfirmation");
-        simulation.MapPost("/{paymentId:guid}/expire", async (Guid paymentId,
-                PaymentOperations operations, CancellationToken ct) =>
-                await RunAsync(async () => await operations.SimulateExpirationAsync(paymentId, ct)
-                    ?? throw new PaymentRuleException("PaymentNotFound", "Pagamento não encontrado.")))
-            .WithName("SimulatePaymentExpiration");
+        if (includeSimulationOperations)
+        {
+            var simulation = endpoints.MapGroup("/api/development/payments")
+                .WithTags("Development Payment Simulation")
+                .RequireAuthorization("CanCreateOrder")
+                .AddEndpointFilter<AntiforgeryEndpointFilter>();
+            simulation.MapPost("/{paymentId:guid}/confirm", async (Guid paymentId,
+                    PaymentOperations operations, CancellationToken ct) =>
+                    await RunAsync(async () => await operations.SimulateConfirmationAsync(paymentId, ct)
+                        ?? throw new PaymentRuleException("PaymentNotFound", "Pagamento não encontrado.")))
+                .WithName("SimulatePaymentConfirmation");
+            simulation.MapPost("/{paymentId:guid}/expire", async (Guid paymentId,
+                    PaymentOperations operations, CancellationToken ct) =>
+                    await RunAsync(async () => await operations.SimulateExpirationAsync(paymentId, ct)
+                        ?? throw new PaymentRuleException("PaymentNotFound", "Pagamento não encontrado.")))
+                .WithName("SimulatePaymentExpiration");
+        }
 
         return endpoints;
     }
@@ -60,9 +63,18 @@ public static class PaymentEndpoints
             var status = ex.Code is "OrderNotFound" or "PaymentNotFound"
                 ? StatusCodes.Status404NotFound
                 : ex.Code is "OrderNotPayable" or "PaymentCannotBeSimulated" or "PaymentExpired"
+                    or "PaymentStillPending"
                     ? StatusCodes.Status409Conflict
                     : StatusCodes.Status400BadRequest;
             return Results.Json(new { code = ex.Code, message = ex.Message }, statusCode: status);
+        }
+        catch (HttpRequestException)
+        {
+            return Results.Json(new
+            {
+                code = "PaymentProviderUnavailable",
+                message = "Não foi possível concluir a operação no provedor de pagamento."
+            }, statusCode: StatusCodes.Status502BadGateway);
         }
     }
 }

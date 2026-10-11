@@ -78,6 +78,15 @@ public sealed class Payment
         SimulatedAt = simulatedAt;
     }
 
+    public void ExpireFromProvider(DateTimeOffset expiredAt)
+    {
+        EnsurePending();
+        if (IsSimulated) throw new InvalidOperationException("Simulated payments must use simulated expiration.");
+        if (expiredAt < ExpiresAt)
+            throw new InvalidOperationException("The provider payment has not expired yet.");
+        Status = PaymentStatus.Expired;
+    }
+
     private void EnsurePending()
     {
         if (Status != PaymentStatus.Pending)

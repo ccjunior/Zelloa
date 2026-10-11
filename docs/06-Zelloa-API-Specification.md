@@ -1312,7 +1312,7 @@ Autorização:
 Guardian proprietário do pedido
 ```
 
-Em ambiente de desenvolvimento com `Payments:SimulationEnabled=true`, esse endpoint cria uma cobrança simulada. A resposta inclui `isSimulated: true`; os dados Pix são marcadores de simulação, não podem ser pagos e não representam QR Code bancário.
+Quando `Payments:Provider=DevelopmentSimulation`, em `Development`, esse endpoint cria uma cobrança simulada. A resposta inclui `isSimulated: true`; os dados Pix são marcadores, não podem ser pagos e não representam QR Code bancário. Quando `Payments:Provider=AsaasSandbox`, também somente em `Development`, cria uma cobrança real de Sandbox e devolve os dados Pix do Asaas. A chave e o ID de um cliente Sandbox previamente cadastrado são necessários via `Payments:Asaas:ApiKey` e `Payments:Asaas:SandboxCustomerId`. A resposta informa a expiração retornada pelo PSP.
 
 ---
 
@@ -1347,7 +1347,8 @@ Order.Total
   "qrCode": "...",
   "expiresAt": "...",
   "isSimulated": false,
-  "simulatedAt": null
+  "simulatedAt": null,
+  "providerStatus": null
 }
 ```
 
@@ -1370,22 +1371,23 @@ Resposta:
   "expiresAt": "...",
   "confirmedAt": null,
   "isSimulated": false,
-  "simulatedAt": null
+  "simulatedAt": null,
+  "providerStatus": "PENDING"
 }
 ```
 
-A resposta inclui `isSimulated` e `simulatedAt`. Quando `status` for `SimulatedConfirmed`, `confirmedAt` permanece `null` e o pedido continua `AwaitingPayment`.
+A resposta inclui `isSimulated`, `simulatedAt` e o `providerStatus` remoto (quando não simulada). Consultar o PSP não confirma nem altera o status local: webhook, reconciliação e transição financeira pertencem à Fase 6. Quando `status` for `SimulatedConfirmed`, `confirmedAt` permanece `null` e o pedido continua `AwaitingPayment`.
 
 ### Operações de simulação (somente Development)
 
-Estas rotas são registradas apenas quando o ambiente da API é `Development` e `Payments:SimulationEnabled=true`. São protegidas por sessão de responsável e antiforgery:
+Estas rotas são registradas apenas quando o ambiente da API é `Development` e `Payments:Provider=DevelopmentSimulation`. São protegidas por sessão de responsável e antiforgery:
 
 ```text
 POST /api/development/payments/{paymentId}/confirm
 POST /api/development/payments/{paymentId}/expire
 ```
 
-Ambas retornam a representação do pagamento com `isSimulated: true`. A confirmação usa `SimulatedConfirmed`, não marca o pedido como pago e não atende ao Gate da Fase 5. Em qualquer outro ambiente, essas rotas não existem. A API falha ao iniciar se a simulação estiver habilitada fora de `Development`.
+Ambas retornam a representação do pagamento com `isSimulated: true`. A confirmação usa `SimulatedConfirmed`, não marca o pedido como pago e não atende ao Gate da Fase 5. Em qualquer outro ambiente, essas rotas não existem. Qualquer integração de pagamento da Fase 5 falha ao iniciar fora de `Development`.
 
 ---
 

@@ -17,12 +17,19 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddZelloaIdentity(builder.Configuration, builder.Environment);
 builder.Services.AddInfrastructure(builder.Configuration);
-var paymentSimulationEnabled = builder.Configuration.GetValue<bool>("Payments:SimulationEnabled");
-if (paymentSimulationEnabled && !builder.Environment.IsDevelopment())
-    throw new InvalidOperationException("Payment simulation can only be enabled in Development.");
-if (paymentSimulationEnabled)
+var paymentProvider = builder.Configuration["Payments:Provider"] ?? "Disabled";
+if (paymentProvider is not ("Disabled" or "DevelopmentSimulation" or "AsaasSandbox"))
+    throw new InvalidOperationException($"Unsupported payment provider '{paymentProvider}'.");
+var paymentIntegrationEnabled = paymentProvider is "DevelopmentSimulation" or "AsaasSandbox";
+if (paymentIntegrationEnabled && !builder.Environment.IsDevelopment())
+    throw new InvalidOperationException("Payment integrations for this phase are restricted to Development.");
+if (paymentProvider == "AsaasSandbox"
+    && (string.IsNullOrWhiteSpace(builder.Configuration["Payments:Asaas:ApiKey"])
+        || string.IsNullOrWhiteSpace(builder.Configuration["Payments:Asaas:SandboxCustomerId"])))
+    throw new InvalidOperationException(
+        "Asaas Sandbox requires Payments:Asaas:ApiKey and Payments:Asaas:SandboxCustomerId.");
+if (paymentIntegrationEnabled)
 {
-    builder.Services.AddScoped<IPaymentGateway, DevelopmentSimulationPaymentGateway>();
     builder.Services.AddScoped<PaymentOperations>();
 }
 builder.Services.AddScoped<SchoolOperations>();
@@ -48,8 +55,8 @@ app.MapIdentityEndpoints();
 app.MapSchoolAcademicEndpoints();
 app.MapCatalogEndpoints();
 app.MapOrderEndpoints();
-if (paymentSimulationEnabled)
-    app.MapDevelopmentPaymentEndpoints();
+if (paymentIntegrationEnabled)
+    app.MapPaymentEndpoints(includeSimulationOperations: paymentProvider == "DevelopmentSimulation");
 
 await app.Services.BootstrapPlatformAdminAsync(app.Configuration);
 

@@ -1187,7 +1187,7 @@ Infrastructure/
 
 O MVP utilizará apenas um PSP.
 
-Não criar suporte completo a múltiplos providers antecipadamente.
+Não criar suporte completo a múltiplos providers antecipadamente. Por decisão do proprietário em 2026-10-11, a infraestrutura terá um resolver simples para selecionar entre o gateway de simulação local e o adapter Asaas restrito ao Sandbox de demonstração. Isso não representa seleção do PSP de produção nem autoriza configuração dinâmica por tenant nesta etapa.
 
 ---
 

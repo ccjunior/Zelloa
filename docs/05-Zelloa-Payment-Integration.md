@@ -4,7 +4,9 @@
 **Versão:** 1.0  
 **Status:** Especificação de pagamentos do MVP  
 **Produto:** Zelloa  
-**Provider candidato para o primeiro piloto:** Banco do Brasil  
+**Provider de produção:** pendente de confirmação com a escola piloto
+**Provider de demonstração:** Asaas Sandbox, autorizado em 2026-10-11; não selecionado para produção
+**Banco do Brasil:** em standby
 **Arquitetura:** Payment Provider por Tenant
 
 ---
@@ -97,13 +99,7 @@ Regra:
 
 > Arquitetura preparada para múltiplos providers. Implementação inicial de apenas um provider.
 
-O provider inicial será escolhido com base na instituição utilizada pela escola piloto.
-
-Neste momento:
-
-> **Banco do Brasil é o candidato principal.**
-
-A seleção final do PSP do piloto fica pendente até a apresentação do fluxo simulado à escola e a confirmação do banco/provedor que ela utiliza e prefere. O gateway `DevelopmentSimulation` é apenas uma simulação da aplicação em ambiente de desenvolvimento; não é sandbox nem homologação de um PSP.
+O PSP de produção será escolhido com base na instituição utilizada pela escola piloto. Até essa confirmação, o proprietário autorizou somente um adapter Asaas em Sandbox para apresentação. Banco do Brasil permanece em standby. O gateway `DevelopmentSimulation` continua sendo uma simulação local da aplicação, distinta do Sandbox do PSP.
 
 Antes da implementação real, essa informação deverá ser confirmada com a escola.
 
@@ -111,7 +107,7 @@ Antes da implementação real, essa informação deverá ser confirmada com a es
 
 # 5. Providers Não Implementados
 
-Não criar preventivamente:
+Não criar preventivamente adapters além do escopo aprovado. O adapter Asaas abaixo é exceção temporária e somente para Sandbox de demonstração; não habilitar produção:
 
 ```text id="uh9n5e"
 AsaasPaymentGateway
@@ -121,6 +117,16 @@ PagarMePaymentGateway
 ```
 
 Adapters somente deverão ser implementados quando houver necessidade concreta.
+
+### Exceção aprovada: Asaas Sandbox para demonstração
+
+O adapter inicial cria uma cobrança Pix na API Sandbox (`https://api-sandbox.asaas.com/v3/`), usando um cliente Sandbox previamente cadastrado e configurado por `Payments:Asaas:SandboxCustomerId`. A chave fica em `Payments:Asaas:ApiKey`, via User Secrets ou environment; não cadastrar automaticamente pessoas fictícias. O adapter retorna o payload Pix, a imagem QR Base64 e a expiração informada pelo Asaas. O endpoint de consulta busca o status remoto e o expõe sem alterar o estado financeiro local. A expiração é definida pelo PSP e pode chegar a 12 meses após o vencimento da cobrança no fluxo com chave Pix; não assumir que o prazo interno nominal de 30 minutos limita a validade do QR. [Documentação oficial de QR Pix](https://docs.asaas.com/reference/obter-qr-code-para-pagamentos-via-pix).
+
+Para executar localmente, a partir de `src/Zelloa.Api`, configure: `dotnet user-secrets set "Payments:Provider" "AsaasSandbox"`, `dotnet user-secrets set "Payments:Asaas:ApiKey" "<sandbox-key>"` e `dotnet user-secrets set "Payments:Asaas:SandboxCustomerId" "<sandbox-customer-id>"`. Não use credenciais de produção.
+
+Este adapter é restrito ao ambiente `Development` e à URL oficial Sandbox. Não suporta cartão nem split: esses recursos requerem um checkout hospedado e decisões/configuração de carteira e percentual que ainda não foram definidos. A confirmação por webhook/reconciliação continua na Fase 6.
+
+Se a criação da cobrança for concluída no PSP e a leitura subsequente do QR falhar, uma nova tentativa poderá deixar cobranças Sandbox duplicadas; idempotência e recuperação desse caso devem ser tratadas na Fase 6 antes de produção.
 
 ---
 
@@ -193,7 +199,7 @@ A resolução do adapter deverá ocorrer em infraestrutura apropriada.
 
 # 8. Payment Gateway Resolver
 
-Quando houver mais de um provider implementado, poderá existir uma abstração equivalente a:
+Para manter o gateway local e o Asaas Sandbox selecionáveis sem condicionais nos casos de uso, usar um resolver simples de infraestrutura:
 
 ```csharp id="7l6a50"
 public interface IPaymentGatewayResolver
@@ -202,11 +208,7 @@ public interface IPaymentGatewayResolver
 }
 ```
 
-Entretanto:
-
-> Não criar resolver complexo enquanto existir apenas um provider implementado.
-
-O design deverá permanecer evolutivo.
+O resolver terá somente os gateways concretamente usados nesta demonstração. Não implementar seleção por Tenant nem catálogo de providers nesta fase.
 
 ---
 
@@ -297,9 +299,9 @@ Nunca utilizar credenciais de produção durante desenvolvimento local.
 
 ---
 
-# 13. Banco do Brasil
+# 13. Banco do Brasil — em standby
 
-Banco do Brasil é o primeiro candidato para o piloto.
+Banco do Brasil permanece como opção para avaliação futura, sem prioridade ou seleção para o piloto. O primeiro adapter autorizado para demonstração será Asaas Sandbox; não habilitar produção.
 
 A implementação deverá ocorrer somente após:
 
@@ -1479,11 +1481,9 @@ Decisão arquitetural:
 
 Decisão de implementação:
 
-> Apenas um provider será implementado inicialmente.
+> Um adapter Asaas será implementado exclusivamente no Sandbox para cobrança Pix de apresentação. A seleção do provider de produção permanece pendente. Checkout de cartão e split exigem fluxo e dados de negócio ainda não definidos, portanto não fazem parte deste adapter Pix inicial.
 
-Candidato atual:
-
-> Banco do Brasil.
+Na demonstração, `Payments:Provider` seleciona o gateway global do ambiente Development. Configuração por Tenant permanece uma decisão de produção futura; não há seleção por escola nesta implementação.
 
 Decisão financeira:
 
