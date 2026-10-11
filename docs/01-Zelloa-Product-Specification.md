@@ -604,17 +604,17 @@ Um novo pedido deverá ser criado utilizando as condições comerciais atuais.
 
 ---
 
-# 24. Horário Limite
+# 24. Janela de Horário por Turno
 
-A escola deverá poder definir um horário limite para pedidos destinados a cada turno. O turno é obtido da turma atual do aluno; o responsável não informa uma data de entrega.
+A escola deverá poder definir, por turno, um horário inicial opcional e um horário limite obrigatório para a realização de pedidos. O turno é obtido da turma atual do aluno; o responsável não informa uma data de entrega.
 
 Exemplo:
 
-> Pedidos para o turno da manhã podem ser realizados até 08:30.
+> Pedidos para o turno da manhã podem ser realizados das 06:00 até 08:30.
 
-O pedido recebe automaticamente como data operacional o dia corrente no timezone da instituição. O backend compara o horário local do envio com o limite configurado para o turno do aluno.
+O pedido recebe automaticamente como data operacional o dia corrente no timezone da instituição. Quando houver horário inicial, o backend rejeita pedidos antes desse horário. Também rejeita pedidos depois do limite final. Os dois limites se aplicam no mesmo dia local e não permitem janelas que cruzem a meia-noite.
 
-O MVP deverá impedir novos pedidos quando o limite do turno tiver passado. Se a escola ainda não tiver configurado um limite para o turno, a criação do pedido deverá ser rejeitada até que o administrador o configure.
+Se o horário inicial não estiver configurado, a regra atual permanece: pedidos podem ser realizados desde o início do dia até o limite final. Se a escola ainda não tiver configurado o limite final para o turno, a criação do pedido deverá ser rejeitada até que o administrador o configure.
 
 ---
 

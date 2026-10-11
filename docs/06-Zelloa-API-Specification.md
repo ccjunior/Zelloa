@@ -633,6 +633,7 @@ Autorização: `CanManageSchool`. O backend retorna até os 100 pedidos mais rec
 Este endpoint administrativo é somente para consulta. Durante a validação da funcionalidade, pode incluir pedidos `AwaitingPayment`, identificados como aguardando pagamento. Esse status não autoriza preparo e não deve entrar na fila operacional da cantina (`GET /api/cafeteria/orders`). Não há ações de pagamento ou mudança de status nesta tela.
 
 ---
+
 # 32. Consultar Escola Atual
 
 ```text
@@ -1126,7 +1127,7 @@ Request:
 
 O responsável não envia uma data de entrega. A data operacional é definida pelo servidor como a data local corrente da instituição. O turno é derivado da turma do aluno.
 
-Antes de criar o pedido, a API verifica o limite configurado pela escola para aquele turno. Se não houver configuração, responder `409 OrderCutoffNotConfigured`; se o limite tiver passado no timezone institucional, responder `409 OrderCutoffPassed`.
+Antes de criar o pedido, a API verifica a janela configurada pela escola para aquele turno no timezone institucional. Se não houver limite final, responder `409 OrderCutoffNotConfigured`; se houver um início configurado e o horário local ainda não tiver chegado, responder `409 OrderCutoffNotStarted`; se o limite final tiver passado, responder `409 OrderCutoffPassed`. Os limites se aplicam ao dia operacional corrente e a janela não cruza a meia-noite.
 
 ### Configurar limites por turno
 
@@ -1141,11 +1142,12 @@ Request do `PUT`:
 
 ```json
 {
+  "openingTime": "06:00",
   "cutoffTime": "08:30"
 }
 ```
 
-O valor é uma hora local da escola no formato `HH:mm`, sem offset. Uma configuração é obrigatória para cada turno antes de aceitar pedidos desse turno.
+`openingTime` é opcional e pode ser enviado como `null`; quando preenchido, é uma hora local da escola no formato `HH:mm`, sem offset. `cutoffTime` é obrigatório e usa o mesmo formato. O início deve ser anterior ao limite final. Uma configuração de limite final é obrigatória para cada turno antes de aceitar pedidos desse turno.
 
 ---
 
@@ -1751,6 +1753,8 @@ Students
 Guardians
  ↓
 Catalog
+ ↓
+School Orders (read-only)
  ↓
 Dashboard
 ```

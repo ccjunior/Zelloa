@@ -742,9 +742,9 @@ Nunca copiar cegamente valores históricos.
 
 ---
 
-# 44. Horário Limite
+# 44. Janela de Horário por Turno
 
-Implementar limite de pedido configurável pelo SchoolAdmin para cada turno, sem data de entrega informada pelo responsável. O turno é derivado da turma atual do aluno; a data operacional é o dia local corrente da escola. Rejeitar a criação se o turno não possuir limite configurado ou se o horário local tiver passado do limite.
+Implementar uma janela configurável pelo SchoolAdmin para cada turno, sem data de entrega informada pelo responsável. O turno é derivado da turma atual do aluno; a data operacional é o dia local corrente da escola. O horário inicial é opcional e, quando informado, pedidos antes dele devem ser rejeitados. O horário limite final é obrigatório; rejeitar a criação se não estiver configurado ou se o horário local tiver passado do limite. A janela não pode cruzar a meia-noite.
 
 Utilizar:
 
@@ -1104,6 +1104,12 @@ Decisão do responsável: antecipar um recorte da Fase 8 para permitir validar o
 
 Esse recorte não conclui a Fase 8 nem atende ao seu Gate. Catálogo, carrinho, checkout, pagamento, acompanhamento, histórico, repetição de pedidos e validação completa do PWA continuam pendentes e devem seguir as dependências e Gates definidos neste plano.
 
+Etapa autorizada e já validada: disponibilizar no Family a consulta mobile-first das categorias e dos produtos ativos e disponíveis da escola, consumindo `GET /api/catalog/available`. A administração de categorias e produtos no painel School pertence ao item 85.
+
+Novo recorte autorizado: permitir que o responsável monte um carrinho, selecione um aluno vinculado, revise e envie o pedido. O backend valida o vínculo, os produtos, a disponibilidade, o horário limite e os preços. A experiência termina exibindo o pedido criado como `AwaitingPayment` (Aguardando pagamento). Não gerar cobrança Pix nesta etapa, não confirmar pagamento simulado e não disponibilizar estes pedidos para preparo na escola. Esse recorte não conclui a Fase 8 nem atende ao seu Gate; pagamento, acompanhamento e histórico permanecem pendentes.
+
+Novo recorte autorizado: disponibilizar na Family uma lista somente para consulta dos pedidos recentes do responsável, usando `GET /api/me/orders`. Exibir aluno, turma, data operacional, itens, total e status traduzido, incluindo `AwaitingPayment`; não iniciar pagamento, cancelar ou alterar pedidos nesta tela. O acompanhamento operacional após pagamento e o histórico completo continuam sujeitos às etapas e ao Gate da Fase 8.
+
 # 70. Objetivo
 
 Construir a experiência completa do responsável.
@@ -1261,6 +1267,10 @@ Construir interface operacional da escola.
 Decisão do responsável: antecipar o início da Fase 9 para viabilizar testes de cadastro pela escola. O primeiro recorte inclui autenticação/ativação do `SchoolAdmin` e interfaces administrativas para turmas, alunos, convite de responsáveis e vínculo responsável-aluno, usando as APIs já implementadas.
 
 Essa reordenação não marca as Fases 5 a 8 como concluídas nem atende ao Gate da Fase 9. Catálogo, pedidos e operação da cantina permanecem sujeitos às dependências e Gates correspondentes; a cantina, em especial, depende do fluxo de operações da Fase 7.
+
+Etapa seguinte autorizada: interface SchoolAdmin de categorias e produtos usando os endpoints de catálogo existentes. A autorização cobre cadastro, edição, status e disponibilidade; não antecipa pedidos nem operação da cantina.
+
+Etapa autorizada: tela SchoolAdmin para consultar e configurar a janela de pedidos por turno, usando `GET /api/school/order-cutoffs` e `PUT /api/school/order-cutoffs/{shift}`. A tela deverá usar os rótulos de turno das turmas cadastradas, permitir horário inicial opcional e exigir limite final, enviando horários locais no formato `HH:mm`. Esta etapa completa a configuração administrativa já prevista para Ordering; não inclui integração de pagamento ou operação da cantina.
 
 Etapa autorizada: consulta SchoolAdmin dos 100 pedidos mais recentes do tenant atual, em modo somente leitura, incluindo temporariamente `AwaitingPayment` para validar a criação e a visualização. A tela deve identificar esse status como aguardando pagamento e avisar que ele não está liberado para preparo. Esta consulta administrativa não é a fila da cantina nem permite alterar status, iniciar preparo ou confirmar pagamento.
 
@@ -1502,6 +1512,10 @@ Nenhuma vulnerabilidade ou falha funcional crítica conhecida poderá permanecer
 ---
 
 # FASE 13 — PILOT DEPLOYMENT
+
+### Deploy antecipado de staging autorizado
+
+O responsável autorizou publicar antecipadamente um ambiente de staging no Coolify para validar a aplicação no servidor e, ao final, executar as validações em dispositivos móveis. Esse deploy serve somente à validação técnica dos recortes já autorizados; não inicia o piloto, não conclui a Fase 13 e não dispensa os Gates das Fases 5 a 12. O staging deverá usar domínio HTTPS, credenciais próprias, dados de teste e banco persistente com acesso restrito. Pagamentos reais e preparação pela cantina continuam fora do escopo atual.
 
 # 104. Objetivo
 
