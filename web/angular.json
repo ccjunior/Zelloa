@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "d72803a2-261d-49c1-9e62-426ad4a836ff"
   },
   "newProjectRoot": "libs",
   "projects": {
@@ -43,7 +44,7 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
+                  "maximumWarning": "5kB",
                   "maximumError": "8kB"
                 }
               ],
@@ -66,6 +67,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [".ngrok-free.app"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "zelloa-family:build:production"
@@ -150,6 +154,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [".ngrok-free.app"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "zelloa-school:build:production"
@@ -376,6 +383,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [".ngrok-free.app"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "zelloa-admin:build:production"

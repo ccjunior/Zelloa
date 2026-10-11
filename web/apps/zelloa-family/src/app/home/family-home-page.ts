@@ -1,11 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FamilyApiService, LinkedStudent } from '../core/family-api.service';
 import { FamilyAuthenticationService } from '../core/family-authentication.service';
 
 @Component({
   selector: 'app-family-home-page',
+  imports: [RouterLink],
   templateUrl: './family-home-page.html',
   styleUrl: './family-home-page.scss',
 })

@@ -25,7 +25,7 @@ public interface IOrderStore
 public sealed record OrderStudentContext(Student Student, Classroom Classroom, School School);
 public sealed record OrderLineRequest(Guid ProductId, int Quantity);
 public sealed record CreateOrderRequest(Guid StudentId, IReadOnlyList<OrderLineRequest> Items);
-public sealed record OrderCutoffResponse(string Shift, TimeOnly CutoffTime);
+public sealed record OrderCutoffResponse(string Shift, TimeOnly? OpeningTime, TimeOnly CutoffTime);
 public sealed record OrderItemResponse(Guid ProductId, string ProductName, decimal UnitPrice, int Quantity, decimal Subtotal);
 public sealed record OrderResponse(Guid OrderId, Guid StudentId, string ClassroomName, string Shift,
     DateOnly OperationalDate, string Status, DateTimeOffset CreatedAt,

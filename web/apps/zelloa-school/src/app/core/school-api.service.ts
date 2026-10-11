@@ -96,6 +96,31 @@ export interface GuardianInvitation {
   expiresAt: string;
 }
 
+export interface CatalogCategory {
+  id: string;
+  name: string;
+  isActive: boolean;
+}
+
+export interface CatalogProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  categoryId: string;
+  categoryName: string;
+  price: number;
+  imageUrl: string | null;
+  isActive: boolean;
+  isAvailable: boolean;
+}
+
+export interface PagedCatalogResponse<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}
+
 export interface SchoolOrder {
   orderId: string;
   studentId: string;

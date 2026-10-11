@@ -1,0 +1,18 @@
+services:
+  api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "8080:8080"
+
+  family:
+    ports:
+      - "8081:80"
+
+  school:
+    ports:
+      - "8082:80"
+
+  admin:
+    ports:
+      - "8083:80"

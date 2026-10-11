@@ -7,8 +7,10 @@
       <a routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" (click)="closeMenu()"><span>⌂</span> Visão geral</a>
       <a routerLink="/classrooms" routerLinkActive="active" (click)="closeMenu()"><span>▦</span> Turmas</a>
       <a routerLink="/students" routerLinkActive="active" (click)="closeMenu()"><span>♧</span> Alunos</a>
-      <a routerLink="/orders" routerLinkActive="active" (click)="closeMenu()"><span>▣</span> Pedidos</a>
       <a routerLink="/guardians" routerLinkActive="active" (click)="closeMenu()"><span>♡</span> Responsáveis</a>
+      <a routerLink="/catalog" routerLinkActive="active" (click)="closeMenu()"><span>▤</span> Catálogo</a>
+      <a routerLink="/orders" routerLinkActive="active" (click)="closeMenu()"><span>▣</span> Pedidos</a>
+      <a routerLink="/order-cutoffs" routerLinkActive="active" (click)="closeMenu()"><span>◷</span> Horários de pedidos</a>
     </nav>
     <div class="sidebar-bottom"><div class="user-avatar">{{ auth.user()?.displayName?.charAt(0) ?? 'E' }}</div><div class="user-copy"><strong>{{ auth.user()?.displayName ?? 'Equipe escolar' }}</strong><span>Administrador</span></div><button type="button" class="logout" aria-label="Sair" title="Sair" (click)="logout()">↗</button></div>
   </aside>

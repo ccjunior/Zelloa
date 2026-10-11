@@ -1,0 +1,56 @@
+<section class="orders-page" aria-labelledby="orders-title">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">HISTÓRICO</p>
+      <h1 id="orders-title">Meus pedidos</h1>
+      <p class="intro">Consulte os pedidos enviados para os alunos vinculados à sua conta.</p>
+    </div>
+    <a class="back-link" routerLink="/">Voltar ao início</a>
+  </header>
+
+  @if (loading()) {
+    <div class="state-card" role="status"><span class="spinner" aria-hidden="true"></span> Carregando seus pedidos…</div>
+  } @else if (errorMessage()) {
+    <div class="notice error" role="alert">{{ errorMessage() }} <button type="button" (click)="loadOrders()">Tentar novamente</button></div>
+  } @else if (orders().length === 0) {
+    <section class="empty-card">
+      <span aria-hidden="true">▤</span>
+      <h2>Nenhum pedido por aqui</h2>
+      <p>Quando você enviar um pedido, poderá consultar o status e os itens nesta tela.</p>
+      <a class="primary-link" routerLink="/catalog">Ver cardápio</a>
+    </section>
+  } @else {
+    <div class="orders-list">
+      @for (order of orders(); track order.orderId) {
+        <article class="order-card">
+          <header class="order-heading">
+            <div>
+              <p class="order-date">Pedido realizado em {{ createdAt(order.createdAt) }}</p>
+              <h2>{{ studentName(order) }}</h2>
+              <p class="classroom">{{ order.classroomName }} · Turno {{ order.shift }}</p>
+            </div>
+            <span class="status-pill" [class]="statusClass(order.status)">{{ statusLabel(order.status) }}</span>
+          </header>
+
+          <div class="order-meta"><span>Data do pedido</span><strong>{{ operationalDate(order.operationalDate) }}</strong></div>
+
+          <ul class="item-list" aria-label="Itens do pedido">
+            @for (item of order.items; track item.productId) {
+              <li>
+                <span>{{ item.quantity }} × {{ item.productName }}</span>
+                <strong>{{ item.subtotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+              </li>
+            }
+          </ul>
+
+          <footer class="order-total"><span>Total</span><strong>{{ order.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong></footer>
+
+          @if (order.status === 'AwaitingPayment') {
+            <p class="pending-note">A cobrança Pix ainda não foi gerada. O pedido não está liberado para preparo.</p>
+          }
+        </article>
+      }
+    </div>
+    <p class="list-note">Exibindo os pedidos mais recentes.</p>
+  }
+</section>

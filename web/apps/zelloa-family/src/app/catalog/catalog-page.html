@@ -1,0 +1,50 @@
+<section class="catalog-page" aria-labelledby="catalog-title">
+  <div class="catalog-heading">
+    <div>
+      <p class="eyebrow">CARDÁPIO DA ESCOLA</p>
+      <h2 id="catalog-title">Escolha algo gostoso.</h2>
+      <p class="intro">Veja os produtos disponíveis para os alunos vinculados à sua conta.</p>
+    </div>
+    <a class="back-link" routerLink="/">Voltar aos alunos</a>
+  </div>
+
+  @if (cart.itemCount() > 0) {
+    <a class="cart-summary" routerLink="/cart" aria-label="Revisar pedido">
+      <span><strong>{{ cart.itemCount() }} {{ cart.itemCount() === 1 ? 'item' : 'itens' }} no pedido</strong><small>Subtotal estimado {{ cart.estimatedTotal() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</small></span>
+      <span class="cart-summary-action">Revisar <span aria-hidden="true">→</span></span>
+    </a>
+  }
+
+  @if (loading()) {
+    <div class="catalog-state" role="status"><span class="spinner"></span>Carregando o cardápio…</div>
+  } @else if (errorMessage()) {
+    <div class="catalog-error" role="alert"><p>{{ errorMessage() }}</p><button type="button" (click)="loadCatalog()">Tentar novamente</button></div>
+  } @else if (categories().length === 0) {
+    <div class="catalog-empty"><span aria-hidden="true">☷</span><h3>O cardápio ainda está sendo preparado.</h3><p>Quando a escola disponibilizar produtos, eles aparecerão aqui.</p></div>
+  } @else {
+    <nav class="category-filter" aria-label="Filtrar por categoria">
+      <button type="button" [class.selected]="selectedCategoryId() === null" [attr.aria-pressed]="selectedCategoryId() === null" (click)="selectCategory(null)">Todos</button>
+      @for (category of categories(); track category.id) {
+        <button type="button" [class.selected]="selectedCategoryId() === category.id" [attr.aria-pressed]="selectedCategoryId() === category.id" (click)="selectCategory(category.id)">{{ category.name }}</button>
+      }
+    </nav>
+
+    <div class="catalog-groups">
+      @for (category of visibleCategories(); track category.id) {
+        <section class="category-section" [attr.aria-labelledby]="'category-' + category.id">
+          <div class="category-heading"><h3 [id]="'category-' + category.id">{{ category.name }}</h3><span>{{ category.products.length }} {{ category.products.length === 1 ? 'opção' : 'opções' }}</span></div>
+          <div class="product-grid">
+            @for (product of category.products; track product.id) {
+              <article class="product-card">
+                @if (product.imageUrl) { <img class="product-image" [src]="product.imageUrl" [alt]="product.name" loading="lazy" (error)="hideImage($event)" /> }
+                <div class="product-copy"><h4>{{ product.name }}</h4>@if (product.description) { <p>{{ product.description }}</p> }</div>
+                <div class="product-footer"><strong>{{ product.price | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong><button type="button" (click)="addToCart(product)">{{ quantityInCart(product.id) ? 'Adicionar mais' : 'Adicionar' }} <span aria-hidden="true">+</span></button></div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    </div>
+    <p class="catalog-note">O valor final do pedido é calculado pela escola no momento do envio.</p>
+  }
+</section>

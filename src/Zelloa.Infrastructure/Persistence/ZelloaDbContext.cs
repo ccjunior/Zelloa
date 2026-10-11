@@ -177,6 +177,7 @@ public sealed class ZelloaDbContext(
             entity.HasKey(cutoff => cutoff.Id);
             entity.Property(cutoff => cutoff.Shift).HasMaxLength(50).IsRequired();
             entity.Property(cutoff => cutoff.ShiftKey).HasMaxLength(50).IsRequired();
+            entity.Property(cutoff => cutoff.OpeningTime).HasColumnType("time without time zone");
             entity.Property(cutoff => cutoff.CutoffTime).HasColumnType("time without time zone");
             entity.HasIndex(cutoff => new { cutoff.TenantId, cutoff.ShiftKey }).IsUnique();
             entity.HasQueryFilter(cutoff => cutoff.TenantId == CurrentTenantId);

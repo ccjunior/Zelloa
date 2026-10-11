@@ -1,11 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FamilyApiService, FamilyCurrentUser } from './family-api.service';
+import { FamilyCartService } from './family-cart.service';
 
 @Injectable({ providedIn: 'root' })
 export class FamilyAuthenticationService {
   private readonly api = inject(FamilyApiService);
   private readonly router = inject(Router);
+  private readonly cart = inject(FamilyCartService);
 
   readonly user = signal<FamilyCurrentUser | null>(null);
 
@@ -23,6 +25,7 @@ export class FamilyAuthenticationService {
         await this.api.post<void>('/api/auth/logout');
       } finally {
         this.user.set(null);
+        this.cart.clear();
       }
       throw new Error('Esta conta não tem acesso ao portal da família. Entre com uma conta de responsável.');
     }
@@ -37,6 +40,7 @@ export class FamilyAuthenticationService {
       await this.api.post<void>('/api/auth/logout');
     } finally {
       this.user.set(null);
+      this.cart.clear();
       await this.router.navigateByUrl('/login');
     }
   }

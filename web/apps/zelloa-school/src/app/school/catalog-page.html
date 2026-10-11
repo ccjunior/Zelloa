@@ -1,0 +1,117 @@
+<div class="catalog-page">
+  <section class="page-heading">
+    <div>
+      <p class="eyebrow">ALIMENTAÇÃO ESCOLAR</p>
+      <div class="catalog-title-row"><h1>Catálogo</h1><span class="count-chip">{{ section() === 'products' ? totalProducts() + ' produtos' : categories().length + ' categorias' }}</span></div>
+      <p class="subheading">Cadastre e organize os produtos oferecidos às famílias.</p>
+    </div>
+  </section>
+
+  <nav class="catalog-tabs" aria-label="Seções do catálogo">
+    <button type="button" [class.active]="section() === 'categories'" [attr.aria-pressed]="section() === 'categories'" (click)="selectSection('categories')">Categorias</button>
+    <button type="button" [class.active]="section() === 'products'" [attr.aria-pressed]="section() === 'products'" (click)="selectSection('products')">Produtos</button>
+  </nav>
+
+  @if (errorMessage()) { <div class="alert error" role="alert">{{ errorMessage() }}</div> }
+  @if (successMessage()) { <div class="alert success" role="status">{{ successMessage() }}</div> }
+
+  @if (section() === 'categories') {
+    @if (showCategoryForm()) {
+      <section class="section-card catalog-form-card" aria-labelledby="category-form-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">{{ editingCategoryId() ? 'EDIÇÃO' : 'ORGANIZAÇÃO' }}</p>
+            <h2 id="category-form-title">{{ editingCategoryId() ? 'Editar categoria' : 'Nova categoria' }}</h2>
+            <p>As categorias ajudam a organizar os produtos do catálogo.</p>
+          </div>
+        </div>
+        <form class="catalog-form" [formGroup]="categoryForm" (ngSubmit)="submitCategory()" novalidate>
+          <label for="category-name">Nome da categoria</label>
+          <input id="category-name" formControlName="name" maxlength="100" placeholder="Ex.: Lanches" autocomplete="off" />
+          @if (categoryForm.controls.name.invalid && categoryForm.controls.name.touched) { <small class="field-error">Informe um nome com até 100 caracteres.</small> }
+          <div class="form-actions">
+            <button class="primary-button" type="submit" [disabled]="categoryForm.invalid || savingCategory()">{{ savingCategory() ? 'Salvando…' : editingCategoryId() ? 'Salvar alterações' : 'Criar categoria' }} <span>→</span></button>
+            <button class="secondary-button" type="button" (click)="cancelCategoryForm()">Cancelar</button>
+          </div>
+        </form>
+      </section>
+    } @else {
+      <section class="section-card catalog-list-card" aria-labelledby="categories-title">
+        <div class="section-heading catalog-section-heading">
+          <div><p class="eyebrow">ORGANIZAÇÃO</p><h2 id="categories-title">Categorias</h2><p>{{ categories().length }} categorias cadastradas</p></div>
+          <button class="primary-button compact-button" type="button" (click)="beginCategoryCreate()">Nova categoria <span>+</span></button>
+        </div>
+        @if (loadingCategories()) {
+          <div class="empty-state">Carregando categorias…</div>
+        } @else if (categories().length === 0) {
+          <div class="empty-state"><span>▦</span><strong>Nenhuma categoria cadastrada</strong><small>Crie uma categoria para organizar os produtos da escola.</small></div>
+        } @else {
+          <div class="category-table-wrap"><table class="category-table"><thead><tr><th>Categoria</th><th>Status</th><th>Ações</th></tr></thead><tbody>
+            @for (category of categories(); track category.id) {
+              <tr [class.category-inactive]="!category.isActive">
+                <td><strong>{{ category.name }}</strong></td>
+                <td><span class="status-pill" [class.inactive]="!category.isActive">{{ category.isActive ? 'Ativa' : 'Inativa' }}</span></td>
+                <td><div class="row-actions"><button type="button" class="text-action" (click)="beginCategoryEdit(category)">Editar</button><button type="button" class="text-action muted" [disabled]="savingCategoryId() === category.id" (click)="toggleCategory(category)">{{ category.isActive ? 'Desativar' : 'Ativar' }}</button></div></td>
+              </tr>
+            }
+          </tbody></table></div>
+        }
+      </section>
+    }
+  } @else {
+    @if (showProductForm()) {
+      <section class="section-card catalog-form-card" aria-labelledby="product-form-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">{{ editingProductId() ? 'EDIÇÃO' : 'NOVO PRODUTO' }}</p><h2 id="product-form-title">{{ editingProductId() ? 'Editar produto' : 'Cadastrar produto' }}</h2><p>Preencha os dados que serão apresentados às famílias.</p></div>
+        </div>
+        @if (categories().length === 0 && !loadingCategories()) { <div class="inline-hint">Crie uma categoria antes de cadastrar produtos.</div> }
+        <form class="catalog-form" [formGroup]="productForm" (ngSubmit)="submitProduct()" novalidate>
+          <label for="product-name">Nome do produto</label><input id="product-name" formControlName="name" maxlength="200" placeholder="Ex.: Pão de queijo" autocomplete="off" />
+          @if (productForm.controls.name.invalid && productForm.controls.name.touched) { <small class="field-error">Informe o nome do produto.</small> }
+
+          <div class="form-row">
+            <div><label for="product-category">Categoria</label><select id="product-category" formControlName="categoryId"><option value="">Selecione</option>@for (category of categories(); track category.id) { @if (category.isActive) { <option [value]="category.id">{{ category.name }}</option> } }</select></div>
+            <div><label for="product-price">Preço (R$)</label><input id="product-price" type="number" min="0.01" max="999999999999" step="0.01" formControlName="price" inputmode="decimal" /></div>
+          </div>
+          @if (productForm.controls.categoryId.invalid && productForm.controls.categoryId.touched) { <small class="field-error">Selecione uma categoria ativa.</small> }
+          @if (productForm.controls.price.invalid && productForm.controls.price.touched) { <small class="field-error">Informe um preço maior que zero, com até duas casas decimais.</small> }
+
+          <label for="product-description">Descrição <span class="optional">Opcional</span></label><textarea id="product-description" formControlName="description" maxlength="2000" rows="3" placeholder="Detalhes úteis para a família"></textarea>
+          <label for="product-image">Imagem por link HTTPS <span class="optional">Opcional</span></label><input id="product-image" type="url" formControlName="imageUrl" maxlength="2048" placeholder="https://..." />
+          @if (productForm.controls.imageUrl.invalid && productForm.controls.imageUrl.touched) { <small class="field-error">Use um link HTTPS válido. O envio de arquivos ainda não está disponível.</small> }
+
+          <div class="form-actions"><button class="primary-button" type="submit" [disabled]="productForm.invalid || savingProduct() || categories().length === 0">{{ savingProduct() ? 'Salvando…' : editingProductId() ? 'Salvar alterações' : 'Cadastrar produto' }} <span>→</span></button><button class="secondary-button" type="button" (click)="cancelProductEdit()">Cancelar</button></div>
+        </form>
+      </section>
+    } @else {
+      <section class="section-card catalog-list-card" aria-labelledby="products-title">
+        <div class="section-heading catalog-section-heading products-heading">
+          <div><p class="eyebrow">CATÁLOGO DA ESCOLA</p><h2 id="products-title">Produtos cadastrados</h2><p>Produtos inativos ou indisponíveis não aparecem para as famílias.</p></div>
+          <button class="primary-button compact-button" type="button" (click)="beginProductCreate()">Cadastrar produto <span>+</span></button>
+        </div>
+        <div class="catalog-filters">
+          <label class="visually-hidden" for="category-filter">Filtrar por categoria</label><select id="category-filter" [value]="categoryFilter()" (change)="setCategoryFilter($any($event.target).value)"><option value="">Todas as categorias</option>@for (category of categories(); track category.id) { <option [value]="category.id">{{ category.name }}</option> }</select>
+          <form class="search-form" (submit)="$event.preventDefault(); applyFilters()"><label class="visually-hidden" for="product-search">Buscar produtos</label><input id="product-search" [value]="searchText()" (input)="searchText.set($any($event.target).value)" maxlength="100" placeholder="Buscar produto" /><button type="submit" aria-label="Buscar">⌕</button></form>
+        </div>
+        @if (loadingProducts()) {
+          <div class="empty-state">Carregando produtos…</div>
+        } @else if (products().length === 0) {
+          <div class="empty-state"><span>▤</span><strong>Nenhum produto encontrado</strong><small>Cadastre o primeiro produto ou ajuste os filtros.</small></div>
+        } @else {
+          <div class="table-wrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Status</th><th>Disponibilidade</th><th>Ações</th></tr></thead><tbody>
+            @for (item of products(); track item.id) {
+              <tr>
+                <td><strong>{{ item.name }}</strong>@if (item.description) { <small class="product-description">{{ item.description }}</small> }</td>
+                <td>{{ item.categoryName }}</td><td class="price-cell">{{ item.price | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+                <td><span class="status-pill" [class.inactive]="!item.isActive">{{ item.isActive ? 'Ativo' : 'Inativo' }}</span></td>
+                <td><span class="status-pill" [class.inactive]="!item.isAvailable">{{ item.isAvailable ? 'Disponível' : 'Indisponível' }}</span></td>
+                <td><div class="row-actions"><button type="button" class="text-action" (click)="beginProductEdit(item)">Editar</button><button type="button" class="text-action" [disabled]="savingProductId() === item.id" (click)="toggleProductAvailability(item)">{{ item.isAvailable ? 'Indisponibilizar' : 'Disponibilizar' }}</button><button type="button" class="text-action muted" [disabled]="savingProductId() === item.id" (click)="toggleProductStatus(item)">{{ item.isActive ? 'Desativar' : 'Ativar' }}</button></div></td>
+              </tr>
+            }
+          </tbody></table></div>
+          <footer class="pagination"><span>Exibindo {{ (page() - 1) * 20 + 1 }}–{{ (page() - 1) * 20 + products().length }} de {{ totalProducts() }}</span><div><button type="button" [disabled]="page() <= 1" (click)="changePage(page() - 1)">Anterior</button><span>Página {{ page() }} de {{ pageCount }}</span><button type="button" [disabled]="page() >= pageCount" (click)="changePage(page() + 1)">Próxima</button></div></footer>
+        }
+      </section>
+    }
+  }
+</div>

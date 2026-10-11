@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: zelloa
-      POSTGRES_USER: zelloa
-      POSTGRES_PASSWORD: zelloa-local
+      POSTGRES_DB: ${ZELLOA_POSTGRES_DB:?Configure ZELLOA_POSTGRES_DB}
+      POSTGRES_USER: ${ZELLOA_POSTGRES_USER:?Configure ZELLOA_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ZELLOA_POSTGRES_PASSWORD:?Configure ZELLOA_POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:15432:5432"
     volumes:
       - zelloa-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U zelloa -d zelloa"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -20,15 +20,16 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     environment:
+      ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_HTTP_PORTS: 8080
-      ConnectionStrings__ZelloaDatabase: Host=postgres;Port=5432;Database=zelloa;Username=zelloa;Password=zelloa-local
+      ConnectionStrings__ZelloaDatabase: "Host=postgres;Port=5432;Database=${ZELLOA_POSTGRES_DB:?Configure ZELLOA_POSTGRES_DB};Username=${ZELLOA_POSTGRES_USER:?Configure ZELLOA_POSTGRES_USER};Password=${ZELLOA_POSTGRES_PASSWORD:?Configure ZELLOA_POSTGRES_PASSWORD}"
       IdentityBootstrap__PlatformAdmin__Email: ${ZELLOA_BOOTSTRAP_ADMIN_EMAIL:-}
       IdentityBootstrap__PlatformAdmin__Password: ${ZELLOA_BOOTSTRAP_ADMIN_PASSWORD:-}
-      Cors__AllowedOrigins__0: ${ZELLOA_CORS_ALLOWED_ORIGIN_0:-http://localhost:8081}
-      Cors__AllowedOrigins__1: ${ZELLOA_CORS_ALLOWED_ORIGIN_1:-http://localhost:8082}
-      Cors__AllowedOrigins__2: ${ZELLOA_CORS_ALLOWED_ORIGIN_2:-http://localhost:8083}
-    ports:
-      - "8080:8080"
+      Cors__AllowedOrigins__0: ${ZELLOA_FAMILY_URL:?Configure ZELLOA_FAMILY_URL}
+      Cors__AllowedOrigins__1: ${ZELLOA_SCHOOL_URL:?Configure ZELLOA_SCHOOL_URL}
+      Cors__AllowedOrigins__2: ${ZELLOA_ADMIN_URL:?Configure ZELLOA_ADMIN_URL}
+      InvitationUrls__Family: ${ZELLOA_FAMILY_URL:?Configure ZELLOA_FAMILY_URL}
+      InvitationUrls__School: ${ZELLOA_SCHOOL_URL:?Configure ZELLOA_SCHOOL_URL}
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,8 +40,6 @@ services:
       dockerfile: docker/Dockerfile.web
       args:
         APP_NAME: zelloa-family
-    ports:
-      - "8081:80"
     depends_on:
       - api
 
@@ -50,8 +49,6 @@ services:
       dockerfile: docker/Dockerfile.web
       args:
         APP_NAME: zelloa-school
-    ports:
-      - "8082:80"
     depends_on:
       - api
 
@@ -61,8 +58,6 @@ services:
       dockerfile: docker/Dockerfile.web
       args:
         APP_NAME: zelloa-admin
-    ports:
-      - "8083:80"
     depends_on:
       - api
 

@@ -8,6 +8,9 @@
     <button class="logout-button" type="button" (click)="logout()">Sair</button>
   </div>
 
+  <a class="portal-link" routerLink="/catalog"><span aria-hidden="true">☰</span><span><strong>Ver cardápio</strong><small>Consulte os produtos disponíveis na escola.</small></span><span aria-hidden="true">→</span></a>
+  <a class="portal-link" routerLink="/orders"><span aria-hidden="true">▤</span><span><strong>Meus pedidos</strong><small>Acompanhe os pedidos enviados e seus status.</small></span><span aria-hidden="true">→</span></a>
+
   <div class="section-heading"><div><h3>Alunos vinculados</h3><p>Os vínculos são gerenciados pela escola.</p></div><span class="student-count">{{ students().length }}</span></div>
 
   @if (loading()) {
@@ -28,5 +31,5 @@
     </div>
   }
 
-  <p class="phase-note">Nesta etapa, você pode confirmar o acesso e consultar seus vínculos. Catálogo e pedidos serão disponibilizados em outra etapa.</p>
+  <p class="phase-note">Você já pode consultar o cardápio e montar um pedido. O pagamento será habilitado em uma próxima etapa.</p>
 </section>

@@ -9,25 +9,37 @@ public sealed class OrderOperations(
     IOrderStore store, ICurrentUser currentUser, ITenantContext tenantContext, TimeProvider timeProvider)
 {
     public async Task<OrderCutoffResponse> SetCutoffAsync(
-        string shift, string cutoffTime, CancellationToken cancellationToken)
+        string shift, string? openingTime, string cutoffTime, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(shift) || shift.Trim().Length > 50
             || !TimeOnly.TryParseExact(cutoffTime, "HH:mm", CultureInfo.InvariantCulture,
-                DateTimeStyles.None, out var time))
-            throw new OrderRuleException("InvalidCutoff", "Informe turno e horário válido no formato HH:mm.");
+                DateTimeStyles.None, out var cutoff))
+            throw new OrderRuleException("InvalidCutoff", "Informe turno e limite final válido no formato HH:mm.");
+
+        TimeOnly? opening = null;
+        if (openingTime is not null)
+        {
+            if (!TimeOnly.TryParseExact(openingTime, "HH:mm", CultureInfo.InvariantCulture,
+                    DateTimeStyles.None, out var parsedOpening))
+                throw new OrderRuleException("InvalidCutoff", "O horário inicial deve estar no formato HH:mm.");
+            opening = parsedOpening;
+        }
+
+        if (opening >= cutoff)
+            throw new OrderRuleException("InvalidCutoff", "O horário inicial deve ser anterior ao limite final.");
 
         var existing = await store.GetCutoffAsync(shift, cancellationToken);
         if (existing is null)
-            store.Add(new OrderCutoff(Guid.NewGuid(), tenantContext.TenantId, shift, time));
+            store.Add(new OrderCutoff(Guid.NewGuid(), tenantContext.TenantId, shift, opening, cutoff));
         else
-            existing.Update(time);
+            existing.Update(opening, cutoff);
         await store.SaveChangesAsync(cancellationToken);
-        return new(shift.Trim(), time);
+        return new(shift.Trim(), opening, cutoff);
     }
 
     public async Task<IReadOnlyList<OrderCutoffResponse>> GetCutoffsAsync(CancellationToken cancellationToken) =>
         (await store.GetCutoffsAsync(cancellationToken))
-            .Select(cutoff => new OrderCutoffResponse(cutoff.Shift, cutoff.CutoffTime)).ToArray();
+            .Select(cutoff => new OrderCutoffResponse(cutoff.Shift, cutoff.OpeningTime, cutoff.CutoffTime)).ToArray();
 
     public async Task<OrderResponse> CreateAsync(CreateOrderRequest request, CancellationToken cancellationToken)
     {
@@ -51,6 +63,8 @@ public sealed class OrderOperations(
 
         var localNow = TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), zone);
         var localTime = TimeOnly.FromDateTime(localNow.DateTime);
+        if (cutoff.OpeningTime is { } opening && localTime < opening)
+            throw new OrderRuleException("OrderCutoffNotStarted", "Ainda não está no horário para fazer pedidos deste turno.");
         if (localTime > cutoff.CutoffTime)
             throw new OrderRuleException("OrderCutoffPassed", "O horário limite para pedidos deste turno já passou.");
 

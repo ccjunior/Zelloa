@@ -44,7 +44,7 @@ public static class OrderEndpoints
         settings.MapPut("/{shift}", async (string shift, OrderCutoffRequest request,
                 OrderOperations operations, CancellationToken ct) =>
             {
-                try { return Results.Ok(await operations.SetCutoffAsync(shift, request.CutoffTime, ct)); }
+                try { return Results.Ok(await operations.SetCutoffAsync(shift, request.OpeningTime, request.CutoffTime, ct)); }
                 catch (OrderRuleException ex) { return Results.BadRequest(new { code = ex.Code, message = ex.Message }); }
             })
             .RequireAuthorization("CanManageSchool").AddEndpointFilter<AntiforgeryEndpointFilter>()
@@ -67,7 +67,7 @@ public static class OrderEndpoints
         }
         catch (OrderRuleException ex)
         {
-            var status = ex.Code is "OrderCutoffNotConfigured" or "OrderCutoffPassed" or "OrderCannotBeCancelled"
+            var status = ex.Code is "OrderCutoffNotConfigured" or "OrderCutoffNotStarted" or "OrderCutoffPassed" or "OrderCannotBeCancelled"
                 ? StatusCodes.Status409Conflict
                 : ex.Code == "OrderNotFound" ? StatusCodes.Status404NotFound : StatusCodes.Status400BadRequest;
             return Results.Json(new { code = ex.Code, message = ex.Message }, statusCode: status);
@@ -75,4 +75,4 @@ public static class OrderEndpoints
     }
 }
 
-public sealed record OrderCutoffRequest(string CutoffTime);
+public sealed record OrderCutoffRequest(string CutoffTime, string? OpeningTime = null);

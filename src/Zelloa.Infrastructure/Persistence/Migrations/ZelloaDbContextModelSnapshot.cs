@@ -398,6 +398,9 @@ namespace Zelloa.Infrastructure.Persistence.Migrations
                     b.Property<TimeOnly>("CutoffTime")
                         .HasColumnType("time without time zone");
 
+                    b.Property<TimeOnly?>("OpeningTime")
+                        .HasColumnType("time without time zone");
+
                     b.Property<string>("Shift")
                         .IsRequired()
                         .HasMaxLength(50)

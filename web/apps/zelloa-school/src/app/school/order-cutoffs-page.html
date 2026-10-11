@@ -1,0 +1,95 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">PEDIDOS</p>
+    <h1>Horários por turno</h1>
+    <p class="subheading">Defina em qual período os responsáveis podem enviar pedidos para cada turno.</p>
+  </div>
+  @if (!loading() && rows().length > 0) {
+    <span class="count-chip">{{ rows().length }} turnos</span>
+  }
+</section>
+
+<section class="section-card cutoff-intro" aria-label="Como funcionam os horários limite">
+  <span class="cutoff-intro-icon" aria-hidden="true">◷</span>
+  <p>O horário inicial é opcional e o limite final é obrigatório. Os dois seguem o fuso da instituição; pedidos fora da janela serão recusados.</p>
+</section>
+
+@if (errorMessage()) { <div class="alert error" role="alert">{{ errorMessage() }}</div> }
+@if (successMessage()) { <div class="alert success" role="status">{{ successMessage() }}</div> }
+
+@if (loading()) {
+  <div class="empty-state" role="status">Carregando turnos e horários…</div>
+} @else if (rows().length === 0) {
+  <section class="section-card empty-cutoffs">
+    <div class="empty-state">
+      <span>◷</span>
+      <strong>Nenhum turno encontrado</strong>
+      <small>Cadastre uma turma para configurar o limite dos pedidos.</small>
+      <a routerLink="/classrooms">Ir para turmas <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+} @else {
+  <div class="cutoff-list">
+    @for (row of rows(); track row.key; let index = $index) {
+      <section class="section-card cutoff-card">
+        <div class="cutoff-title">
+          <span class="shift-icon" aria-hidden="true">◷</span>
+          <div>
+            <h2>{{ row.shift }}</h2>
+            <p>{{ row.isConfigured ? 'Período de pedidos configurado' : 'Ainda sem limite final' }}</p>
+          </div>
+          <span class="status-pill" [class.inactive]="!row.isConfigured">
+            {{ row.isConfigured ? 'Configurado' : 'Pendente' }}
+          </span>
+        </div>
+
+        <form [formGroup]="row.form" (ngSubmit)="save(row)" novalidate>
+          <div class="cutoff-input-wrap">
+            <label [for]="'order-opening-' + index">Disponível a partir de <span>(opcional)</span></label>
+            <input
+              [id]="'order-opening-' + index"
+              type="time"
+              step="60"
+              formControlName="openingTime"
+              (input)="clearFeedback(row.key)"
+              [attr.aria-describedby]="'order-opening-help-' + index"
+            />
+            <small class="cutoff-help" [id]="'order-opening-help-' + index">Se ficar vazio, pedidos podem ser enviados desde o início do dia.</small>
+            @if (row.form.controls.openingTime.invalid && row.form.controls.openingTime.touched) {
+              <small class="field-error">Informe um horário válido no formato HH:mm.</small>
+            }
+          </div>
+          <div class="cutoff-input-wrap">
+            <label [for]="'order-cutoff-' + index">Aceitar pedidos até</label>
+            <input
+              [id]="'order-cutoff-' + index"
+              type="time"
+              step="60"
+              formControlName="cutoffTime"
+              (input)="clearFeedback(row.key)"
+              [attr.aria-describedby]="'order-cutoff-help-' + index"
+            />
+            @if (row.form.controls.cutoffTime.invalid && row.form.controls.cutoffTime.touched) {
+              <small class="field-error">Informe um horário válido no formato HH:mm.</small>
+            }
+            @if (row.form.errors?.['invalidWindow']) {
+              <small class="field-error">O início deve ser anterior ao limite final. A janela não pode cruzar a meia-noite.</small>
+            }
+            <small class="cutoff-help" [id]="'order-cutoff-help-' + index">Pedidos desse turno serão recusados depois desse horário.</small>
+          </div>
+          <button
+            class="primary-button save-cutoff"
+            type="submit"
+            [disabled]="row.form.invalid || savingShift() !== null"
+          >
+            {{ savingShift() === row.key ? 'Salvando…' : row.isConfigured ? 'Atualizar horário' : 'Salvar horário' }}
+            <span aria-hidden="true">→</span>
+          </button>
+          @if (savedShift() === row.key) {
+            <span class="saved-indicator" role="status">Salvo</span>
+          }
+        </form>
+      </section>
+    }
+  </div>
+}

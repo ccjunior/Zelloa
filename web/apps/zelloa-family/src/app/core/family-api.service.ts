@@ -42,3 +42,38 @@ export interface LinkedStudent {
   classroomName: string;
   isActive: boolean;
 }
+
+export interface AvailableCatalogProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  imageUrl: string | null;
+}
+
+export interface AvailableCatalogCategory {
+  id: string;
+  name: string;
+  products: AvailableCatalogProduct[];
+}
+
+export interface AvailableCatalogResponse {
+  categories: AvailableCatalogCategory[];
+}
+
+export interface CreateOrderRequest {
+  studentId: string;
+  items: { productId: string; quantity: number }[];
+}
+
+export interface OrderResponse {
+  orderId: string;
+  studentId: string;
+  classroomName: string;
+  shift: string;
+  operationalDate: string;
+  status: string;
+  createdAt: string;
+  items: { productId: string; productName: string; unitPrice: number; quantity: number; subtotal: number }[];
+  total: number;
+}

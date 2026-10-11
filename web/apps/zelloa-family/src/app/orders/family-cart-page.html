@@ -1,0 +1,73 @@
+<section class="cart-page" aria-labelledby="cart-title">
+  @if (createdOrder(); as order) {
+    <div class="order-confirmation" role="status">
+      <div class="confirmation-icon" aria-hidden="true">✓</div>
+      <p class="eyebrow">PEDIDO REGISTRADO</p>
+      <h2 id="cart-title">Seu pedido está aguardando pagamento.</h2>
+      <p class="confirmation-copy">O pedido foi enviado para {{ selectedStudent()?.name ?? 'o aluno selecionado' }}. A cobrança Pix ainda não foi gerada.</p>
+      <div class="order-summary">
+        <div><span>Status</span><strong class="awaiting-status">Aguardando pagamento</strong></div>
+        <div><span>Aluno</span><strong>{{ selectedStudent()?.name }}</strong></div>
+        <div><span>Turma</span><strong>{{ order.classroomName }}</strong></div>
+        <div><span>Data do pedido</span><strong>{{ order.operationalDate }}</strong></div>
+        <div class="summary-total"><span>Total calculado pela escola</span><strong>{{ order.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong></div>
+      </div>
+      <p class="next-step-note">O pagamento será habilitado em uma próxima etapa. Este pedido ainda não está liberado para preparo.</p>
+      <a class="primary-link" routerLink="/orders">Ver meus pedidos</a>
+      <a class="home-link" routerLink="/">Voltar aos alunos</a>
+    </div>
+  } @else {
+    <div class="cart-heading">
+      <div>
+        <p class="eyebrow">REVISÃO DO PEDIDO</p>
+        <h2 id="cart-title">Confira antes de enviar.</h2>
+        <p class="intro">Escolha para qual aluno será feito o pedido. O valor final será calculado pela escola.</p>
+      </div>
+      <a class="back-link" routerLink="/catalog">Voltar ao cardápio</a>
+    </div>
+
+    @if (errorMessage()) { <p class="error-message" role="alert">{{ errorMessage() }} <button type="button" (click)="loadStudents()">Tentar novamente</button></p> }
+
+    @if (loadingStudents()) {
+      <div class="empty-state" role="status">Carregando alunos vinculados…</div>
+    } @else if (students().length === 0) {
+      <div class="empty-state"><h3>Nenhum aluno ativo disponível.</h3><p>Peça à escola para confirmar o vínculo do aluno com sua conta.</p></div>
+    } @else if (cart.items().length === 0) {
+      <div class="empty-state"><h3>Seu pedido está vazio.</h3><p>Volte ao cardápio e adicione os produtos que deseja pedir.</p><a class="primary-link" routerLink="/catalog">Ver cardápio</a></div>
+    } @else {
+      <div class="cart-layout">
+        <div class="cart-items">
+          <label class="student-field">Pedido para
+            <select [value]="selectedStudentId()" (change)="selectStudent($event)" required>
+              <option value="" disabled>Selecione um aluno</option>
+              @for (student of students(); track student.id) { <option [value]="student.id">{{ student.name }} — {{ student.classroomName }}</option> }
+            </select>
+          </label>
+
+          <div class="item-list">
+            @for (item of cart.items(); track item.id) {
+              <article class="cart-item">
+                <div class="item-copy"><h3>{{ item.name }}</h3><p>{{ item.price | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} cada</p></div>
+                <label class="quantity-field">Qtd.
+                  <input type="number" min="1" max="99" [value]="item.quantity" (change)="changeQuantity(item.id, $event)" aria-label="Quantidade de {{ item.name }}" />
+                </label>
+                <strong class="line-total">{{ item.price * item.quantity | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+                <button class="remove-button" type="button" (click)="cart.remove(item.id)" aria-label="Remover {{ item.name }}">Remover</button>
+              </article>
+            }
+          </div>
+        </div>
+
+        <aside class="checkout-card" aria-label="Resumo do pedido">
+          <h3>Resumo</h3>
+          <div class="estimate-row"><span>{{ cart.itemCount() }} {{ cart.itemCount() === 1 ? 'item' : 'itens' }}</span><strong>{{ cart.estimatedTotal() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong></div>
+          <p>Este é um valor estimado. O backend valida os produtos e calcula o total no envio.</p>
+          <button class="submit-button" type="button" [disabled]="!selectedStudentId() || submitting()" (click)="submitOrder()">
+            {{ submitting() ? 'Enviando pedido…' : 'Enviar pedido' }} <span aria-hidden="true">→</span>
+          </button>
+          <small>O pedido ficará aguardando pagamento. Nenhuma cobrança será feita nesta etapa.</small>
+        </aside>
+      </div>
+    }
+  }
+</section>
